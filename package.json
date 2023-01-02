@@ -1,0 +1,17 @@
+{
+  "name": "com.phun.phengine.network",
+  "displayName": "PhEngine Network",
+  "version": "0.1.1",
+  "description": "PhEngine Network package",
+  "keywords": [],
+  "dependencies": {
+    "com.phun.phengine.core": "",
+    "com.phun.phengine.json": ""
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/phanphantz/PhEngine-Network"
+  },
+  "license": "MIT",
+  "author": "Phun Peeticharoenthum"
+}
