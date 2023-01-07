@@ -32,6 +32,7 @@ namespace PhEngine.Network
 
         void TryAppendRequestBody(StringBuilder stringBuilder)
         {
+            stringBuilder.Append($"Parameter Type: {ClientRequest.ParameterType}\n");
             var json = ClientRequest.Content;
             if (json != null && !json.IsNull)
                 AppendRequestBody(stringBuilder, json);
@@ -71,7 +72,7 @@ namespace PhEngine.Network
         {
             stringBuilder.Append($"Code: {result.code}\n");
             TryAppendError(result, stringBuilder);
-            stringBuilder.Append($"Body: {response}\n\n");
+            stringBuilder.Append($"Body: \n{response}\n\n");
         }
 
         void TryAppendError(ServerResult result, StringBuilder stringBuilder)

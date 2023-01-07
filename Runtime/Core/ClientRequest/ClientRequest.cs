@@ -21,7 +21,8 @@ namespace PhEngine.Network
         internal ClientRequest(WebRequestForm form, JSONObject json = null)
         {
             Form = form;
-            Content = json;
+            if (form.parameterType != ParameterType.None)
+                Content = json;
         }
 
         internal void SetDebugMode(NetworkDebugMode mode)

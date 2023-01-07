@@ -81,13 +81,13 @@ namespace PhEngine.Network
         {
             if (string.IsNullOrEmpty(timeString))
             {
-                Debug.LogError("Cannot Set Update Latest Server Time. Received string is null or empty.");
+                Debug.LogWarning("Cannot Set Update Latest Server Time. Received string is null or empty.");
                 return false;
             }
             
             if (!DateTime.TryParse(timeString, out _))
             {
-                Debug.LogError("Cannot Set Update Latest Server Time. Received string cannot be parsed to DateTime.");
+                Debug.LogWarning("Cannot Set Update Latest Server Time. Received string cannot be parsed to DateTime.");
                 return false;
             }
 
