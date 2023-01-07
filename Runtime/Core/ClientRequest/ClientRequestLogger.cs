@@ -32,10 +32,8 @@ namespace PhEngine.Network
 
         void TryAppendRequestBody(StringBuilder stringBuilder)
         {
-            stringBuilder.Append($"Parameter Type: {ClientRequest.ParameterType}\n");
-            var json = ClientRequest.Content;
-            if (json != null && !json.IsNull)
-                AppendRequestBody(stringBuilder, json);
+            if (ClientRequest.ParameterType == ParameterType.Body)
+                AppendRequestBody(stringBuilder, ClientRequest.Content);
         }
 
         static void AppendRequestBody(StringBuilder stringBuilder, JSONObject json)
