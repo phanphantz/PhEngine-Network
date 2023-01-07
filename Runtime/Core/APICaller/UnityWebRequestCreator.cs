@@ -1,17 +1,19 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using PhEngine.JSON;
+using UnityEngine;
 using UnityEngine.Networking;
 
 namespace PhEngine.Network
 {
     public static class UnityWebRequestCreator
     {
-        public static UnityWebRequest CreateUnityWebRequest(ClientRequest clientRequest, string urlPrefix,int timeout, ClientRequestRule requestRule, string accessToken)
+        public static UnityWebRequest CreateUnityWebRequest(ClientRequest clientRequest, string urlPrefix,int timeout, ClientRequestRule requestRule, RequestHeaderSetting[] headerModifications, string accessToken)
         {
             var fullURL = GetFullURL(clientRequest, urlPrefix);
-            return CreateUnityWebRequest(clientRequest, timeout, requestRule, accessToken, fullURL);
+            return CreateUnityWebRequest(clientRequest, timeout, requestRule, headerModifications, accessToken, fullURL);
         }
         
         static string GetFullURL(ClientRequest clientRequest, string urlPrefix = "")
@@ -24,18 +26,18 @@ namespace PhEngine.Network
         }
 
         static UnityWebRequest CreateUnityWebRequest(ClientRequest clientRequest, int timeout, ClientRequestRule requestRule,
-            string accessToken, string fullURL)
+            RequestHeaderSetting[] headerModifications, string accessToken, string fullURL)
         {
             var result = new UnityWebRequest(fullURL, clientRequest.Verb.ToString());
-            InitializeWebRequest(clientRequest, timeout, requestRule, accessToken, result);
+            InitializeWebRequest(clientRequest, timeout, requestRule, headerModifications, accessToken, result);
             return result;
         }
 
         static void InitializeWebRequest(ClientRequest clientRequest, int timeout, ClientRequestRule requestRule,
-            string accessToken, UnityWebRequest result)
+            RequestHeaderSetting[] headerModifications, string accessToken, UnityWebRequest result)
         {
             TryInjectJsonIntoUnityWebRequest(clientRequest, result);
-            InjectAccessTokenAndAdditionalRequestHeaders(result, requestRule, accessToken);
+            InjectAccessTokenAndAdditionalRequestHeaders(result, requestRule, headerModifications, accessToken);
             result.downloadHandler = new DownloadHandlerBuffer();
             result.timeout = timeout;
         }
@@ -115,10 +117,28 @@ namespace PhEngine.Network
             return rawData;
         }
         
-        static void InjectAccessTokenAndAdditionalRequestHeaders(UnityWebRequest request, ClientRequestRule requestRule, string accessToken)
+        static void InjectAccessTokenAndAdditionalRequestHeaders(UnityWebRequest request, ClientRequestRule requestRule, RequestHeaderSetting[] headerSettingModifications, string accessToken)
         {
             InjectAccessTokenHeader(request, requestRule, accessToken);
-            InjectAdditionalRequestHeaders(request, requestRule.additionalRequestHeaders);
+            var headers = CreateFinalHeaderSettings(requestRule, headerSettingModifications);
+            InjectAdditionalRequestHeaders(request, headers);
+        }
+
+        static RequestHeaderSetting[] CreateFinalHeaderSettings(ClientRequestRule requestRule,
+            RequestHeaderSetting[] headerSettingModifications)
+        {
+            var headerList = new List<RequestHeaderSetting>();
+            foreach (var setting in requestRule.additionalRequestHeaders)
+            {
+                var header = new RequestHeaderSetting(setting);
+                var modification = headerSettingModifications.FirstOrDefault(mod => mod.key == header.key);
+                if (modification != null)
+                    header.value = modification.value;
+                
+                headerList.Add(header);
+            }
+
+            return headerList.ToArray();
         }
 
         static void InjectAccessTokenHeader(UnityWebRequest request, ClientRequestRule requestRule, string accessToken)

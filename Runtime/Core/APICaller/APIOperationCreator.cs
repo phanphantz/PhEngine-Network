@@ -11,12 +11,14 @@ namespace PhEngine.Network
         APICallConfig Config { get; }
         NetworkRuleConfig NetworkRuleConfig { get; }
         string AccessToken { get; }
+        RequestHeaderSetting[] HeaderModifications { get; }
         
-        public APIOperationCreator(string accessToken, APICallConfig config, NetworkRuleConfig networkRuleConfig)
+        public APIOperationCreator(string accessToken, APICallConfig config, NetworkRuleConfig networkRuleConfig, RequestHeaderSetting[] headerModifications)
         {
             AccessToken = accessToken;
             Config = config;
             NetworkRuleConfig = networkRuleConfig;
+            HeaderModifications = headerModifications;
         }
 
         public APIOperation Create(ClientRequest clientRequest)
@@ -48,7 +50,7 @@ namespace PhEngine.Network
 
         UnityWebRequest CreateUnityWebRequest(ClientRequest clientRequest)
         {
-            return UnityWebRequestCreator.CreateUnityWebRequest(clientRequest, Config.url, Config.timeoutInSeconds, NetworkRuleConfig.clientRequestRule, AccessToken);
+            return UnityWebRequestCreator.CreateUnityWebRequest(clientRequest, Config.url, Config.timeoutInSeconds, NetworkRuleConfig.clientRequestRule, HeaderModifications,AccessToken);
         }
     }
 }

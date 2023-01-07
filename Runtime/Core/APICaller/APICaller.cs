@@ -9,10 +9,13 @@ namespace PhEngine.Network
     public class APICaller : Singleton<APICaller>
     {
         [SerializeField] string accessToken;
+        [SerializeField] RequestHeaderSetting[] requestHeaderModifications;
+        
+        [Header("Info")]
         [SerializeField] string latestServerTimeString;
         public DateTime LatestServerTime { get; private set; }
 
-        [Header("Settings")] 
+        [Header("Configs")] 
         [SerializeField] APICallConfig config;
         [SerializeField] NetworkRuleConfig networkRule;
 
@@ -33,7 +36,7 @@ namespace PhEngine.Network
         
         public APIOperation Create(WebRequestForm form, JSONObject json = null)
         {
-            var creator = new APIOperationCreator(FinalAccessToken, config, networkRule);
+            var creator = new APIOperationCreator(FinalAccessToken, config, networkRule, requestHeaderModifications);
             var request = new ClientRequest(form, json);
             var call = creator.Create(request);
             return call;
