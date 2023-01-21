@@ -13,7 +13,7 @@ namespace PhEngine.Network
         {
             var config = forms.FirstOrDefault(t => t.name == formName);
             if (config == null)
-                throw new ObjectNotFoundException("Cannot find the Web Request Form with name: " + formName);
+                Debug.LogError("Cannot find the Web Request Form with name: " + formName);
 
             return config.Form;
         }
