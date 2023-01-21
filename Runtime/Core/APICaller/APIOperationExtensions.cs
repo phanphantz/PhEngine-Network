@@ -8,13 +8,13 @@ namespace PhEngine.Network
     {
         public static APIOperation Expect<T>(this APIOperation operation, Action<T> onSuccess) where T : JSONConvertibleObject
         {
-            operation.OnSuccess +=  (result)=> onSuccess.Invoke(GetResultObject<T>(result));
+            operation.OnSuccess +=  (result)=> onSuccess?.Invoke(GetResultObject<T>(result));
             return operation;
         }
 
         public static APIOperation ExpectList<T>(this APIOperation operation, Action<List<T>> onSuccess) where T : JSONConvertibleObject
         {
-            operation.OnSuccess +=  (result)=> onSuccess.Invoke(GetResultObjectList<T>(result));
+            operation.OnSuccess +=  (result)=> onSuccess?.Invoke(GetResultObjectList<T>(result));
             return operation;
         }
 
