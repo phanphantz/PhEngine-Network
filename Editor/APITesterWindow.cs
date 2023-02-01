@@ -3,7 +3,7 @@ using PhEngine.JSON;
 using UnityEditor;
 using UnityEngine;
 
-namespace PhEngine.Network
+namespace PhEngine.Network.Editor
 {
     public class APITesterWindow : EditorWindow
     {

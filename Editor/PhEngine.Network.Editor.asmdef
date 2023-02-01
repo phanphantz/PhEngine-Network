@@ -1,0 +1,21 @@
+{
+    "name": "PhEngine.Network.Editor",
+    "rootNamespace": "",
+    "references": [
+        "PhEngine.Core",
+        "PhEngine.JSON",
+        "PhEngine.Core.Operation",
+        "PhEngine.Network"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
