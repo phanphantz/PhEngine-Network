@@ -13,14 +13,14 @@ namespace PhEngine.Network
         public WebRequestForm Form => form;
         [SerializeField] protected WebRequestForm form;
         
-        public APIOperation Create(NetworkDebugMode debugMode)
+        public APIOperation CreateOperation(NetworkDebugMode debugMode)
         {
-            var api = Create();
+            var api = CreateOperation();
             api.SetDebugMode(debugMode);
             return api;
         }
 
-        public virtual APIOperation Create()
+        public virtual APIOperation CreateOperation()
         {
             var apiOp = Create(Form, CreateBody());
             apiOp.SetMockedResponse(CreateBody());
@@ -74,9 +74,9 @@ namespace PhEngine.Network
     [Serializable]
     public abstract class RespondListAPI<T> : API
     {
-        public override APIOperation Create()
+        public override APIOperation CreateOperation()
         {
-            var apiOp = base.Create();
+            var apiOp = base.CreateOperation();
             apiOp.ExpectList
             (
                 OnReceiveDataList, 
@@ -92,9 +92,9 @@ namespace PhEngine.Network
     [Serializable]
     public abstract class RespondSingleAPI<T> : API
     {
-        public override APIOperation Create()
+        public override APIOperation CreateOperation()
         {
-            var apiOp = base.Create();
+            var apiOp = base.CreateOperation();
             apiOp.Expect(OnReceiveData, CreateMockedData());
             return apiOp;
         }
@@ -106,9 +106,9 @@ namespace PhEngine.Network
     [Serializable]
     public abstract class RespondJsonAPI : API
     {
-        public override APIOperation Create()
+        public override APIOperation CreateOperation()
         {
-            var apiOp = base.Create();
+            var apiOp = base.CreateOperation();
             apiOp.OnSuccess += (result) => { OnReceiveJson(result.dataJson); };
             return apiOp;
         }

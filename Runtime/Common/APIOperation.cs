@@ -147,7 +147,7 @@ namespace PhEngine.Network
     {
         public static void Add(this Flow flow, API api)
         {
-            flow.Add(api.Create());
+            flow.Add(api.CreateOperation());
         }
         
         public static APIOperation Expect<T>(this APIOperation operation, Action<T> onSuccess, T mockedData = default)
