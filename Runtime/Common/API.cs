@@ -10,27 +10,21 @@ namespace PhEngine.Network
     [Serializable]
     public abstract class API
     {
-        public event Action<ServerResult> onFail;
-        
         public WebRequestForm Form => form;
         [SerializeField] protected WebRequestForm form;
         
-        public void Call(NetworkDebugMode debugMode = NetworkDebugMode.Off)
+        public APIOperation Create(NetworkDebugMode debugMode)
         {
             var api = Create();
             api.SetDebugMode(debugMode);
-            api.Run();
+            return api;
         }
 
         public virtual APIOperation Create()
         {
             var apiOp = Create(Form, CreateBody());
             apiOp.SetMockedResponse(CreateBody());
-            apiOp.OnFail += (result) =>
-            {
-                OnFail(result);
-                onFail?.Invoke(result);
-            };
+            apiOp.OnFail += OnFail;
             return apiOp;
         }
 
@@ -80,17 +74,12 @@ namespace PhEngine.Network
     [Serializable]
     public abstract class RespondListAPI<T> : API
     {
-        public event Action<List<T>> onReceiveDataList;
         public override APIOperation Create()
         {
             var apiOp = base.Create();
             apiOp.ExpectList
             (
-                dataList =>
-                {
-                    OnReceiveDataList(dataList);
-                    onReceiveDataList?.Invoke(dataList);
-                }, 
+                OnReceiveDataList, 
                 CreateMockedListData()
             );
             return apiOp;
@@ -103,18 +92,10 @@ namespace PhEngine.Network
     [Serializable]
     public abstract class RespondSingleAPI<T> : API
     {
-        public event Action<T> onReceiveData;
         public override APIOperation Create()
         {
             var apiOp = base.Create();
-            apiOp.Expect
-            ((data) =>
-                {
-                    OnReceiveData(data);
-                    onReceiveData?.Invoke(data);
-                }, 
-                CreateMockedData()
-            );
+            apiOp.Expect(OnReceiveData, CreateMockedData());
             return apiOp;
         }
 
@@ -125,15 +106,10 @@ namespace PhEngine.Network
     [Serializable]
     public abstract class RespondJsonAPI : API
     {
-        public event Action<JSONObject> onSuccess;
         public override APIOperation Create()
         {
             var apiOp = base.Create();
-            apiOp.OnSuccess += (result) =>
-            {
-                OnReceiveJson(result.dataJson);
-                onSuccess?.Invoke(result.dataJson);
-            };
+            apiOp.OnSuccess += (result) => { OnReceiveJson(result.dataJson); };
             return apiOp;
         }
 
