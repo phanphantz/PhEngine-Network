@@ -16,7 +16,6 @@ namespace PhEngine.Network
         public bool IsShowLoading => Form.setting.isShowLoading;
         public bool IsShowConnectionFailError => Form.setting.isShowErrorOnConnectionFail;
         public bool IsShowServerFailError => Form.setting.isShowErrorOnServerFail;
-        public string MockedRequestBody => Form.mockedRequestBody;
         public FailureHandling FailureHandling => Form.setting.failureHandling;
         public NetworkDebugMode DebugMode => Form.setting.debugMode;
         public WebRequestPathType Type => Form.type;
@@ -38,7 +37,7 @@ namespace PhEngine.Network
             Form.setting.debugMode = mode;
         }
 
-        internal void OverrideContent(JSONObject json)
+        internal void SetContent(JSONObject json)
         {
             Content = json;
         }

@@ -15,9 +15,10 @@ namespace PhEngine.Network
         public WebRequestForm Form => form;
         [SerializeField] protected WebRequestForm form;
         
-        public void Call()
+        public void Call(NetworkDebugMode debugMode = NetworkDebugMode.Off)
         {
             var api = Create();
+            api.SetDebugMode(debugMode);
             api.Run();
         }
 

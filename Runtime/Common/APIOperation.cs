@@ -111,11 +111,6 @@ namespace PhEngine.Network
             return Result;
         }
 
-        public void SetMockedResponse(string value)
-        {
-            ClientRequest.SetMockedResponse(value);
-        }
-
         public void SetMockedResponse(JSONObject value)
         {
             if (value == null)
@@ -123,20 +118,15 @@ namespace PhEngine.Network
             
             SetMockedResponse(value.ToString());
         }
-
-        public void UseMockedRequestBody()
+        
+        public void SetMockedResponse(string value)
         {
-            OverrideRequestBody(ClientRequest.MockedResponse);
+            ClientRequest.SetMockedResponse(value);
         }
 
-        public void OverrideRequestBody(string value)
+        public void SetDebugMode(NetworkDebugMode mode)
         {
-            ClientRequest.OverrideContent(new JSONObject(value));
-        }
-
-        public void OverrideRequestBody(JSONObject json)
-        {
-            ClientRequest.OverrideContent(json);
+            ClientRequest.SetDebugMode(mode);
         }
 
         public void SetMockedResponse(object value)

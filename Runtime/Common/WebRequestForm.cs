@@ -13,10 +13,10 @@ namespace PhEngine.Network
         public WebRequestPathType type;
         public WebRequestSetting setting;
 
-        [TextArea(1,100)]
-        public string mockedRequestBody;
+        [TextArea(0,100)]
+        public string requestBodyTemplate;
 
-        public WebRequestForm(string path, HTTPVerb verb, ParameterType parameterType = ParameterType.None, WebRequestPathType type = WebRequestPathType.FullURL, WebRequestSetting setting = null, string mockedRequestBody = null)
+        public WebRequestForm(string path, HTTPVerb verb, ParameterType parameterType = ParameterType.None, WebRequestPathType type = WebRequestPathType.FullURL, WebRequestSetting setting = null, string requestBodyTemplate = null)
         {
             name = string.Empty;
             this.path = path;
@@ -24,7 +24,7 @@ namespace PhEngine.Network
             this.parameterType = parameterType;
             this.type = type;
             this.setting = setting ?? new WebRequestSetting();
-            this.mockedRequestBody = mockedRequestBody;
+            this.requestBodyTemplate = requestBodyTemplate;
         }
     }
     
