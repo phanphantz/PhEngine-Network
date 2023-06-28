@@ -39,31 +39,36 @@ namespace PhEngine.Network
         
         #endregion
         
-        public void CallByRequest(WebRequestForm form, JSONObject json = null)
+        public void Call(WebRequestForm form, JSONObject json = null)
         {
             var call = Create(form, json);
             Call(call);
         }
         
+        public void Call(APIOperation operation) => operation.RunOn(this);
+        
         public APIOperation Create(WebRequestForm form, JSONObject json = null)
         {
-            var clientRequest = new ClientRequest(form, json);
-            var isValid = config && networkRule;
-            if (!isValid)
+            if (config == null || networkRule == null)
             {
                 Debug.LogError("Cannot Create API Operation. APICallerConfig or NetworkRuleConfig is missing.");
                 return null;
             }
             
+            var clientRequest = new ClientRequest(form, json);
             if (config.isForceUseNetworkDebugMode)
                 clientRequest.SetDebugMode(config.networkDebugMode);
             
-            var finalAccessToken = Application.isEditor && config.isUseEditorAccessToken ? config.editorAccessToken : accessToken;
-            var webRequest = WebRequestCreator.Create(clientRequest, config.url, config.timeoutInSeconds, networkRule.clientRequestRule, requestHeaderModifications,finalAccessToken);
+            var finalAccessToken = GetFinalAccessToken();
+            var webRequest = WebRequestCreator.Create(clientRequest, config.url, config.timeoutInSeconds, networkRule.clientRequestRule, requestHeaderModifications, finalAccessToken);
             return new APIOperation(clientRequest, webRequest, networkRule.serverResultRule, config.isShowingLog);
+            
+            string GetFinalAccessToken()
+            {
+                return Application.isEditor && config.isUseEditorAccessToken ? config.editorAccessToken : accessToken;
+            }
         }
-
-        public void Call(APIOperation operation) => operation.RunOn(this);
+        
         public void SetAccessToken(string value) => accessToken = value;
     }
 }

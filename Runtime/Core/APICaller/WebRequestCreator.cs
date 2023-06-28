@@ -6,9 +6,9 @@ using UnityEngine.Networking;
 
 namespace PhEngine.Network
 {
-    public static class WebRequestCreator
+    internal static class WebRequestCreator
     {
-        public static UnityWebRequest Create(ClientRequest clientRequest, string urlPrefix,int timeout, ClientRequestRule requestRule, RequestHeaderSetting[] headerModifications, string accessToken)
+        internal static UnityWebRequest Create(ClientRequest clientRequest, string urlPrefix,int timeout, ClientRequestRule requestRule, RequestHeaderSetting[] headerModifications, string accessToken)
         {
             var fullURL = GetFullURL(clientRequest, urlPrefix);
             var webRequest = new UnityWebRequest(fullURL, clientRequest.Verb.ToString());

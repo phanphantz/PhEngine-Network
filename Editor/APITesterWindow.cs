@@ -38,7 +38,7 @@ namespace PhEngine.Network.Editor
                 throw new NullReferenceException("API Caller is missing.");
             
             if (formConfig)
-                caller.CallByRequest(formConfig.Form, new JSONObject(requestBody));
+                caller.Call(formConfig.Form, new JSONObject(requestBody));
         }
     }
 }
