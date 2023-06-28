@@ -9,10 +9,15 @@ namespace PhEngine.Network
 {
     public static class UnityWebRequestCreator
     {
-        public static UnityWebRequest CreateUnityWebRequest(ClientRequest clientRequest, string urlPrefix,int timeout, ClientRequestRule requestRule, RequestHeaderSetting[] headerModifications, string accessToken)
+        public static UnityWebRequest Create(ClientRequest clientRequest, string urlPrefix,int timeout, ClientRequestRule requestRule, RequestHeaderSetting[] headerModifications, string accessToken)
         {
             var fullURL = GetFullURL(clientRequest, urlPrefix);
-            return CreateUnityWebRequest(clientRequest, timeout, requestRule, headerModifications, accessToken, fullURL);
+            var webRequest = new UnityWebRequest(fullURL, clientRequest.Verb.ToString());
+            AddContent(clientRequest, webRequest);
+            AddRequestHeaders(webRequest, requestRule, headerModifications, accessToken);
+            webRequest.downloadHandler = new DownloadHandlerBuffer();
+            webRequest.timeout = timeout;
+            return webRequest;
         }
         
         static string GetFullURL(ClientRequest clientRequest, string urlPrefix = "")
@@ -24,35 +29,12 @@ namespace PhEngine.Network
             return fullURL;
         }
 
-        static UnityWebRequest CreateUnityWebRequest(ClientRequest clientRequest, int timeout, ClientRequestRule requestRule,
-            RequestHeaderSetting[] headerModifications, string accessToken, string fullURL)
+        static void AddContent(ClientRequest clientRequest, UnityWebRequest unityWebRequest)
         {
-            var result = new UnityWebRequest(fullURL, clientRequest.Verb.ToString());
-            InitializeWebRequest(clientRequest, timeout, requestRule, headerModifications, accessToken, result);
-            return result;
-        }
-
-        static void InitializeWebRequest(ClientRequest clientRequest, int timeout, ClientRequestRule requestRule,
-            RequestHeaderSetting[] headerModifications, string accessToken, UnityWebRequest result)
-        {
-            TryInjectJsonIntoUnityWebRequest(clientRequest, result);
-            InjectAccessTokenAndAdditionalRequestHeaders(result, requestRule, headerModifications, accessToken);
-            result.downloadHandler = new DownloadHandlerBuffer();
-            result.timeout = timeout;
-        }
-
-        static void TryInjectJsonIntoUnityWebRequest(ClientRequest clientRequest, UnityWebRequest unityWebRequest)
-        {
-            var json = clientRequest.Content;
-            if (json == null)
+            if (clientRequest.Content == null)
                 return;
-
-            InjectJsonIntoUnityWebRequest(clientRequest, unityWebRequest, json);
-        }
-
-        static void InjectJsonIntoUnityWebRequest(ClientRequest clientRequest, UnityWebRequest unityWebRequest, JSONObject json)
-        {
-            var rawData = CreateUnityWebRequestRawData(clientRequest, json, unityWebRequest);
+            
+            var rawData = CreateUnityWebRequestRawData(clientRequest, clientRequest.Content, unityWebRequest);
             if (rawData != null)
                 unityWebRequest.uploadHandler = new UploadHandlerRaw(rawData);
         }
@@ -88,25 +70,15 @@ namespace PhEngine.Network
                 return;
 
             request.url += "?";
-            AssignEachFieldAsQueries(json, request);
-        }
-
-        static void AssignEachFieldAsQueries(JSONObject json, UnityWebRequest request)
-        {
             foreach (KeyValuePair<string, string> entry in json.ToDictionary())
             {
                 if (entry.Value == null)
                     continue;
 
-                AssignFieldAsQuery(request, entry);
+                var value = entry.Value.Replace("#", "%23");
+                request.url += $"{entry.Key}={value}&";
             }
             request.url = request.url.Remove(request.url.Length - 1);
-        }
-
-        static void AssignFieldAsQuery(UnityWebRequest request, KeyValuePair<string, string> entry)
-        {
-            var value = entry.Value.Replace("#", "%23");
-            request.url += $"{entry.Key}={value}&";
         }
 
         static byte[] CreateBodyTypeRequestRawData(JSONObject json, UnityWebRequest request)
@@ -116,11 +88,14 @@ namespace PhEngine.Network
             return rawData;
         }
         
-        static void InjectAccessTokenAndAdditionalRequestHeaders(UnityWebRequest request, ClientRequestRule requestRule, RequestHeaderSetting[] headerSettingModifications, string accessToken)
+        static void AddRequestHeaders(UnityWebRequest request, ClientRequestRule requestRule, RequestHeaderSetting[] headerSettingModifications, string accessToken)
         {
-            InjectAccessTokenHeader(request, requestRule, accessToken);
+            accessToken ??= "";
+            request.SetRequestHeader(requestRule.accessTokenFieldName, requestRule.accessTokenPrefix + accessToken);
+            
             var headers = CreateFinalHeaderSettings(requestRule, headerSettingModifications);
-            InjectAdditionalRequestHeaders(request, headers);
+            foreach (var requestHeader in headers)
+                request.SetRequestHeader(requestHeader.key, requestHeader.value);
         }
 
         static RequestHeaderSetting[] CreateFinalHeaderSettings(ClientRequestRule requestRule,
@@ -138,23 +113,6 @@ namespace PhEngine.Network
             }
 
             return headerList.ToArray();
-        }
-
-        static void InjectAccessTokenHeader(UnityWebRequest request, ClientRequestRule requestRule, string accessToken)
-        {
-            var accessTokenToInject = accessToken;
-            request.SetRequestHeader(requestRule.accessTokenFieldName, requestRule.accessTokenPrefix + GetNullSafeString(accessTokenToInject));
-        }
-
-        static string GetNullSafeString(string accessTokenToInject)
-        {
-            return string.IsNullOrEmpty(accessTokenToInject) ? string.Empty : accessTokenToInject;
-        }
-
-        static void InjectAdditionalRequestHeaders(UnityWebRequest request, RequestHeaderSetting[] additionalRequestHeaders)
-        {
-            foreach (var requestHeader in additionalRequestHeaders)
-                request.SetRequestHeader(requestHeader.key, requestHeader.value);
         }
     }
     
