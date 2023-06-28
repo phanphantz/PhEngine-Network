@@ -118,17 +118,33 @@ namespace PhEngine.Network
 
         public void SetMockedResponse(JSONObject value)
         {
+            if (value == null)
+                return;
+            
             SetMockedResponse(value.ToString());
         }
 
         public void SetMockedResponse(object value)
         {
-            SetMockedResponse(JsonConvert.SerializeObject(value));
+            try
+            {
+                var str = JsonConvert.SerializeObject(value);
+                SetMockedResponse(str);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e);
+            }
         }
     }
     
     public static class APIOperationExtensions
     {
+        public static void Add(this Sequence sequence, API api)
+        {
+            sequence.Add(api.Create());
+        }
+        
         public static APIOperation Expect<T>(this APIOperation operation, Action<T> onSuccess, T mockedData = default)
         {
             operation.OnSuccess += (result)=>

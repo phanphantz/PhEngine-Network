@@ -48,6 +48,11 @@ namespace PhEngine.Network
 
         public void Call(APIOperation operation) => operation.Run();
 
+        public APIOperation Create(API api)
+        {
+            return Create(api.Form, api.CreateBody());
+        }
+
         public APIOperation Create(WebRequestForm form, JSONObject json = null)
         {
             if (config == null || networkRule == null)
