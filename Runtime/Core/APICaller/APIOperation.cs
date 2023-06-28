@@ -21,11 +21,6 @@ namespace PhEngine.Network
             ClientRequest = clientRequest;
             IsShowingLog = isShowingLog;
             Logger = new ClientRequestLogger(ClientRequest, WebRequest);
-            BindActions();
-        }
-
-        void BindActions()
-        {
             OnStart += HandleOnSend;
             OnFinish += HandleOnReceiveResponse;
             OnSuccess += LogSuccess;
@@ -38,11 +33,6 @@ namespace PhEngine.Network
                 NetworkEvent.InvokeOnShowLoading(ClientRequest);
             
             NetworkEvent.InvokeOnAnyRequestSend(ClientRequest);
-            TryLogRequest();
-        }
-        
-        void TryLogRequest()
-        {
             if (!IsShowingLog)
                 return;
             
@@ -54,15 +44,15 @@ namespace PhEngine.Network
             if (ClientRequest.IsShowLoading)
                 NetworkEvent.InvokeOnHideLoading(ClientRequest);
             
-            var receivedTime = GetTimeFromServerResult(ClientRequest, Result);
+            var receivedTime = GetTimeFromServerResult();
             NetworkEvent.SetLatestServerTimeByString(receivedTime);
+            
+            string GetTimeFromServerResult()
+            {
+                return ClientRequest.DebugMode == NetworkDebugMode.Off? Result.dateTime : DateTime.UtcNow.ToString(CultureInfo.InvariantCulture);
+            }
         }
-
-        static string GetTimeFromServerResult(ClientRequest request, ServerResult serverResult)
-        {
-            return request.DebugMode == NetworkDebugMode.Off? serverResult.dateTime : DateTime.UtcNow.ToString(CultureInfo.InvariantCulture);
-        }
-
+        
         void LogSuccess(ServerResult result)
         {
             if (IsShowingLog)
@@ -113,8 +103,7 @@ namespace PhEngine.Network
 
         protected override ServerResult CreateResultFromWebRequest(UnityWebRequest request)
         {
-            var resultCreator = new ServerResultCreator(ClientRequest, WebRequest, ServerResultRule);
-            Result = resultCreator.Create();
+            Result = new ServerResult(WebRequest, ServerResultRule, ClientRequest.DebugMode);
             NetworkEvent.InvokeOnAnyResultReceived(Result);
             return Result;
         }
