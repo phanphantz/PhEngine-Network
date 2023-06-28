@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 namespace PhEngine.Network
 {
@@ -12,7 +13,10 @@ namespace PhEngine.Network
         public WebRequestPathType type;
         public WebRequestSetting setting;
 
-        public WebRequestForm(string path, HTTPVerb verb, ParameterType parameterType = ParameterType.None, WebRequestPathType type = WebRequestPathType.FullURL, WebRequestSetting setting = null)
+        [TextArea(1,100)]
+        public string mockedRequestBody;
+
+        public WebRequestForm(string path, HTTPVerb verb, ParameterType parameterType = ParameterType.None, WebRequestPathType type = WebRequestPathType.FullURL, WebRequestSetting setting = null, string mockedRequestBody = null)
         {
             name = string.Empty;
             this.path = path;
@@ -20,16 +24,7 @@ namespace PhEngine.Network
             this.parameterType = parameterType;
             this.type = type;
             this.setting = setting ?? new WebRequestSetting();
-        }
-        
-        public WebRequestForm(string name, string path, HTTPVerb verb, ParameterType parameterType = ParameterType.None, WebRequestPathType type = WebRequestPathType.FullURL, WebRequestSetting setting = null)
-        {
-            this.name = name;
-            this.path = path;
-            this.verb = verb;
-            this.parameterType = parameterType;
-            this.type = type;
-            this.setting = setting ?? new WebRequestSetting();
+            this.mockedRequestBody = mockedRequestBody;
         }
     }
     

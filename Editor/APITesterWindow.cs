@@ -19,7 +19,13 @@ namespace PhEngine.Network.Editor
 
         void OnGUI()
         {
+            EditorGUI.BeginChangeCheck();
             formConfig = EditorGUILayout.ObjectField(new GUIContent("From Config"), formConfig, typeof(WebRequestFormConfig), false) as WebRequestFormConfig;
+            if (EditorGUI.EndChangeCheck() && formConfig)
+            {
+                requestBody = formConfig.Form.mockedRequestBody;
+            }
+            
             EditorGUILayout.LabelField("Request Body:");
             requestBody = EditorGUILayout.TextArea(requestBody, GUILayout.Height(200));
 

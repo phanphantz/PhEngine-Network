@@ -6,7 +6,7 @@ namespace PhEngine.Network
     [Serializable]
     public class ClientRequest
     {
-        public JSONObject Content { get; }
+        public JSONObject Content { get; private set; }
         public string MockedResponse { get; private set; }
         public WebRequestForm Form { get; }
         
@@ -16,6 +16,7 @@ namespace PhEngine.Network
         public bool IsShowLoading => Form.setting.isShowLoading;
         public bool IsShowConnectionFailError => Form.setting.isShowErrorOnConnectionFail;
         public bool IsShowServerFailError => Form.setting.isShowErrorOnServerFail;
+        public string MockedRequestBody => Form.mockedRequestBody;
         public FailureHandling FailureHandling => Form.setting.failureHandling;
         public NetworkDebugMode DebugMode => Form.setting.debugMode;
         public WebRequestPathType Type => Form.type;
@@ -35,6 +36,11 @@ namespace PhEngine.Network
         internal void SetDebugMode(NetworkDebugMode mode)
         {
             Form.setting.debugMode = mode;
+        }
+
+        internal void OverrideContent(JSONObject json)
+        {
+            Content = json;
         }
     }
     

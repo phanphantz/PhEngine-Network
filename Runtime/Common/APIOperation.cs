@@ -124,6 +124,21 @@ namespace PhEngine.Network
             SetMockedResponse(value.ToString());
         }
 
+        public void UseMockedRequestBody()
+        {
+            OverrideRequestBody(ClientRequest.MockedResponse);
+        }
+
+        public void OverrideRequestBody(string value)
+        {
+            ClientRequest.OverrideContent(new JSONObject(value));
+        }
+
+        public void OverrideRequestBody(JSONObject json)
+        {
+            ClientRequest.OverrideContent(json);
+        }
+
         public void SetMockedResponse(object value)
         {
             try
