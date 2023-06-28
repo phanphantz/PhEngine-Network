@@ -42,12 +42,12 @@ namespace PhEngine.Network
     {
         None, Query, Body
     }
-    
+
     public enum WebRequestPathType
     {
         FullURL, Endpoint
     }
-    
+
     [Serializable]
     public class WebRequestSetting
     {
@@ -55,5 +55,11 @@ namespace PhEngine.Network
         public bool isShowErrorOnConnectionFail = true;
         public bool isShowErrorOnServerFail = true;
         public NetworkDebugMode debugMode;
+        public FailureHandling failureHandling;
+    }
+    
+    public enum FailureHandling
+    {
+        None, SuggestReloadGame, SuggestRetry
     }
 }
