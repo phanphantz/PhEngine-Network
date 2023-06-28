@@ -15,6 +15,7 @@ namespace PhEngine.Network
         public string message;
         public string dateTime;
         public ServerResultStatus status;
+        public bool isMocked;
 
         public ServerResult() {}
         
@@ -22,6 +23,7 @@ namespace PhEngine.Network
         {
             if (debugMode != NetworkDebugMode.Off)
             {
+                isMocked = true;
                 MockStatus(debugMode);
                 return;
             }

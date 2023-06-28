@@ -17,7 +17,7 @@ namespace PhEngine.Network
         public static event Action<ServerResult> OnAnyServerSuccess;
         
         public static event Action<DateTime> OnDayChanged;
-        public static event Action<DateTime> OnTimeChanged;
+        public static event Action<DateTime> OnReceiveServerTime;
         public static event Action<TimeSpan> OnCompensateTime;
         
         public static DateTime LatestServerTime { get; private set; }
@@ -105,7 +105,7 @@ namespace PhEngine.Network
         static void NotifyTimeChange(DateTime newTime)
         {
             Debug.Log($"Receive Time From Server : {newTime}");
-            OnTimeChanged?.Invoke(newTime);
+            OnReceiveServerTime?.Invoke(newTime);
         }
 
         static void TryCompensateTime(DateTime newTime)

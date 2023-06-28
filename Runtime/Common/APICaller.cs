@@ -24,12 +24,12 @@ namespace PhEngine.Network
         
         protected override void InitAfterAwake()
         {
-            NetworkEvent.OnTimeChanged += SetLatestServerTime;
+            NetworkEvent.OnReceiveServerTime += SetLatestServerTime;
         }
 
         void OnDestroy()
         {
-            NetworkEvent.OnTimeChanged -= SetLatestServerTime;
+            NetworkEvent.OnReceiveServerTime -= SetLatestServerTime;
         }
 
         void SetLatestServerTime(DateTime dateTime)
