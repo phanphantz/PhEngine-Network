@@ -20,13 +20,14 @@ namespace PhEngine.Network
 
         public ServerResult() {}
         
-        public ServerResult(UnityWebRequest unityWebRequest, ServerResultRule resultRule, NetworkDebugMode debugMode = NetworkDebugMode.Off, FailureHandling failureHandling = FailureHandling.None)
+        public ServerResult(UnityWebRequest unityWebRequest, ServerResultRule resultRule, ClientRequest clientRequest)
         {
-            this.failureHandling = failureHandling;
-            if (debugMode != NetworkDebugMode.Off)
+            failureHandling = clientRequest.FailureHandling;
+            if (clientRequest.DebugMode != NetworkDebugMode.Off)
             {
                 isMocked = true;
-                MockStatus(debugMode);
+                MockStatus(clientRequest.DebugMode);
+                dataJson = new JSONObject(clientRequest.MockedResponse);
                 return;
             }
             
@@ -42,7 +43,11 @@ namespace PhEngine.Network
             status = GetServerResultStatus();
             dateTime = fullJson.SafeString(resultRule.currentDateTimeFieldName);
             message = fullJson.SafeString(resultRule.messageFieldName);
-            dataJson = GetDataJson(fullJson);
+            
+            if (string.IsNullOrEmpty(resultRule.dataFieldName))
+                dataJson = fullJson;
+            else
+                dataJson = fullJson.GetField(resultRule.dataFieldName);
             
             bool IsHasResponse()
             {
@@ -51,7 +56,7 @@ namespace PhEngine.Network
 
                 return !string.IsNullOrEmpty(unityWebRequest.downloadHandler.text);
             }
-            
+
             ServerResultStatus GetServerResultStatus()
             {
                 if (unityWebRequest.error != null)
@@ -68,14 +73,6 @@ namespace PhEngine.Network
                     return ServerResultStatus.ServerReturnSuccess;
             
                 return ServerResultStatus.ServerReturnFail;
-            }
-            
-            JSONObject GetDataJson(JSONObject json)
-            {
-                if (string.IsNullOrEmpty(resultRule.dataFieldName))
-                    return json;
-            
-                return json.GetField(resultRule.dataFieldName);
             }
         }
 

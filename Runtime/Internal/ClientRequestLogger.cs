@@ -96,8 +96,14 @@ namespace PhEngine.Network
         {
             Debug.LogError(message);
         }
-        
-        string GetResultJsonString(ServerResult result) =>  result.fullJson == null ? "null" : result.fullJson.Print(true);
+
+        string GetResultJsonString(ServerResult result)
+        {
+            if (result.isMocked)
+                return result.dataJson == null ? "null" : result.dataJson.Print(true);
+            
+            return result.fullJson == null ? "null" : result.fullJson.Print(true);
+        }
     }
     
     public static class ClientRequestLogType

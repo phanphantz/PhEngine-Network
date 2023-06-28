@@ -39,7 +39,7 @@ namespace PhEngine.Network
         }
         
         #endregion
-        
+
         public void Call(WebRequestForm form, JSONObject json = null)
         {
             var call = Create(form, json);
@@ -47,7 +47,7 @@ namespace PhEngine.Network
         }
 
         public void Call(APIOperation operation) => operation.Run();
-        
+
         public APIOperation Create(WebRequestForm form, JSONObject json = null)
         {
             if (config == null || networkRule == null)

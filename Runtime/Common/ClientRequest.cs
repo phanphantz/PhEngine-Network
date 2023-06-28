@@ -7,6 +7,7 @@ namespace PhEngine.Network
     public class ClientRequest
     {
         public JSONObject Content { get; }
+        public string MockedResponse { get; private set; }
         public WebRequestForm Form { get; }
         
         public string Destination => Form.path;
@@ -24,6 +25,11 @@ namespace PhEngine.Network
             Form = form;
             if (form.parameterType != ParameterType.None)
                 Content = json;
+        }
+
+        internal void SetMockedResponse(string value)
+        {
+            MockedResponse = value;
         }
 
         internal void SetDebugMode(NetworkDebugMode mode)

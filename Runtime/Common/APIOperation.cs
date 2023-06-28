@@ -17,8 +17,8 @@ namespace PhEngine.Network
         ServerResult Result { get; set; }
         bool IsShowingLog { get; }
         ClientRequestLogger Logger { get; }
-
-        public APIOperation(ClientRequest clientRequest, UnityWebRequest webRequest,ServerResultRule serverResultRule, bool isShowingLog) : base(webRequest)
+        
+        public APIOperation(ClientRequest clientRequest, UnityWebRequest webRequest,ServerResultRule serverResultRule, bool isShowingLog = false) : base(webRequest)
         {
             ServerResultRule = serverResultRule;
             ClientRequest = clientRequest;
@@ -99,16 +99,31 @@ namespace PhEngine.Network
             return ClientRequest.DebugMode != NetworkDebugMode.Off ? 1f : base.GetWebRequestProgress();
         }
 
-        protected override bool IsWebRequestHasNoError()
+        protected override bool IsNetworkOperationSuccess()
         {
             return Result.status == ServerResultStatus.ServerReturnSuccess;
         }
 
         protected override ServerResult CreateResultFromWebRequest(UnityWebRequest request)
         {
-            Result = new ServerResult(WebRequest, ServerResultRule, ClientRequest.DebugMode, ClientRequest.FailureHandling);
+            Result = new ServerResult(WebRequest, ServerResultRule, ClientRequest);
             NetworkEvent.InvokeOnAnyResultReceived(Result);
             return Result;
+        }
+
+        public void SetMockedResponse(string value)
+        {
+            ClientRequest.SetMockedResponse(value);
+        }
+
+        public void SetMockedResponse(JSONObject value)
+        {
+            SetMockedResponse(value.ToString());
+        }
+
+        public void SetMockedResponse(object value)
+        {
+            SetMockedResponse(JsonConvert.SerializeObject(value));
         }
     }
     
