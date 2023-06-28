@@ -15,9 +15,9 @@ namespace PhEngine.Network
 
         public void GetFromServer()
         {
-            CreateGetAPI()
-                .ExpectList<T>(Refresh)
-                .RunOn(this);
+            var api = CreateGetAPI();
+            api.ExpectList<T>(Refresh);
+            api.RunOn(this);
         }
         
         public APIOperation CreateGetAPI()
@@ -27,12 +27,8 @@ namespace PhEngine.Network
         
         public abstract JSONObject CreateGetRequestBody();
         
-        public void Refresh(ServerResult result)
-            => Refresh(result.dataJson);
-
-        public void Refresh(JSONObject json)
-            => Refresh(JSONConverter.ToList<T>(json));
-
+        public void Refresh(ServerResult result) => Refresh(result.dataJson);
+        public void Refresh(JSONObject json) => Refresh(JSONConverter.ToList<T>(json));
         public void Refresh(List<T> list)
         {
             elementList = list;
@@ -43,5 +39,25 @@ namespace PhEngine.Network
         {
             OnElementUpdate?.Invoke(element);
         }
+    }
+    
+    public abstract class NetworkConfigCenter<T> : NetworkObjectCenter<T> where T : NetworkConfig
+    {
+        public override JSONObject CreateGetRequestBody() => null;
+    }
+    
+    public abstract class NetworkConfig : JSONConvertibleObject
+    {
+        public abstract string ConfigId { get; }
+    }
+    
+    public abstract class NetworkDataCenter<T> : NetworkObjectCenter<T> where T : NetworkData
+    {
+    }
+    
+    public abstract class NetworkData : JSONConvertibleObject
+    {
+        public abstract string ConfigId { get; }
+        public abstract string UserId { get; }
     }
 }

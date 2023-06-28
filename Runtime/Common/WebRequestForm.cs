@@ -32,4 +32,28 @@ namespace PhEngine.Network
             this.setting = setting ?? new WebRequestSetting();
         }
     }
+    
+    public enum HTTPVerb
+    {
+        GET, HEAD, POST, PUT, CREATE, PATCH, DELETE
+    }
+    
+    public enum ParameterType
+    {
+        None, Query, Body
+    }
+    
+    public enum WebRequestPathType
+    {
+        FullURL, Endpoint
+    }
+    
+    [Serializable]
+    public class WebRequestSetting
+    {
+        public bool isShowLoading = true;
+        public bool isShowErrorOnConnectionFail = true;
+        public bool isShowErrorOnServerFail = true;
+        public NetworkDebugMode debugMode;
+    }
 }

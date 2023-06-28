@@ -5,7 +5,7 @@ using UnityEngine.Networking;
 
 namespace PhEngine.Network
 {
-    public class ClientRequestLogger
+    internal class ClientRequestLogger
     {
         ClientRequest ClientRequest { get; }
         UnityWebRequest UnityWebRequest { get; }
@@ -18,65 +18,25 @@ namespace PhEngine.Network
         
         public void LogStartRequest()
         {
-            var startWebRequestLog = GetStartRequestLog();
-            Log(startWebRequestLog);
-        }
-        
-        string GetStartRequestLog()
-        {
             var stringBuilder = GetEndpointLogTitle(ClientRequest, ClientRequestLogType.START);
-            TryAppendRequestBody(stringBuilder);
-            AppendURL(stringBuilder);
-            return stringBuilder.ToString();
-        }
-
-        void TryAppendRequestBody(StringBuilder stringBuilder)
-        {
             if (ClientRequest.ParameterType == ParameterType.Body)
-                AppendRequestBody(stringBuilder, ClientRequest.Content);
-        }
+            {
+                stringBuilder.Append("Request Body: \n");
+                stringBuilder.Append(ClientRequest.Content.Print(true));
+                stringBuilder.Append("\n\n");
+            }
 
-        static void AppendRequestBody(StringBuilder stringBuilder, JSONObject json)
-        {
-            stringBuilder.Append("Request Body: \n");
-            stringBuilder.Append(json.Print(true));
-            stringBuilder.Append("\n\n");
-        }
-
-        void AppendURL(StringBuilder stringBuilder)
-        {
             stringBuilder.Append("URL: ");
             stringBuilder.Append(UnityWebRequest.url);
             stringBuilder.Append("\n");
+            
+            Log(stringBuilder.ToString());
         }
-
+        
         public void LogConnectionFail(ServerResult result)
         {
             var log = GetConnectionFailLog(result);
             LogError(log);
-        }
-
-        string GetConnectionFailLog(ServerResult result)
-            => GetResultLog(result, ClientRequestLogType.CONNECTION_FAIL, UnityWebRequest.downloadHandler.text);
-
-        string GetResultLog(ServerResult result, string logType, string body)
-        {
-            var stringBuilder = GetEndpointLogTitle(ClientRequest, logType);
-            AppendDetailAndError(result, stringBuilder, body);
-            return stringBuilder.ToString();
-        }
-
-        void AppendDetailAndError(ServerResult result, StringBuilder stringBuilder, string response)
-        {
-            stringBuilder.Append($"Code: {result.code}\n");
-            TryAppendError(result, stringBuilder);
-            stringBuilder.Append($"Body: \n{response}\n\n");
-        }
-
-        void TryAppendError(ServerResult result, StringBuilder stringBuilder)
-        {
-            if (result.status != ServerResultStatus.ServerReturnSuccess)
-                stringBuilder.Append($"Error: {UnityWebRequest.error}\n");
         }
 
         public void LogServerFail(ServerResult result)
@@ -85,18 +45,32 @@ namespace PhEngine.Network
             LogError(log);
         }
         
-        string GetServerFailLog(ServerResult result)
-            => GetResultLog(result, ClientRequestLogType.SERVER_FAIL, GetResultJsonString(result));
-
         public void LogSuccess(ServerResult result)
         {
             var log = GetSuccessLog(result);
             Log(log);
         }
+        
+        string GetConnectionFailLog(ServerResult result)
+            => GetResultLog(result, ClientRequestLogType.CONNECTION_FAIL, UnityWebRequest.downloadHandler.text);
 
+        string GetServerFailLog(ServerResult result)
+            => GetResultLog(result, ClientRequestLogType.SERVER_FAIL, GetResultJsonString(result));
+        
         string GetSuccessLog(ServerResult result)
             => GetResultLog(result, ClientRequestLogType.SUCCESS, GetResultJsonString(result));
 
+        string GetResultLog(ServerResult result, string logType, string body)
+        {
+            var stringBuilder = GetEndpointLogTitle(ClientRequest, logType);
+            stringBuilder.Append($"Code: {result.code}\n");
+            if (result.status != ServerResultStatus.ServerReturnSuccess)
+                stringBuilder.Append($"Error: {UnityWebRequest.error}\n");
+            
+            stringBuilder.Append($"Body: \n{body}\n\n");
+            return stringBuilder.ToString();
+        }
+        
         static StringBuilder GetEndpointLogTitle(ClientRequest request, string logType)
         {
             var stringBuilder = new StringBuilder();

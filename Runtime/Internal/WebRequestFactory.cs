@@ -6,7 +6,7 @@ using UnityEngine.Networking;
 
 namespace PhEngine.Network
 {
-    internal static class WebRequestCreator
+    internal static class WebRequestFactory
     {
         internal static UnityWebRequest Create(ClientRequest clientRequest, string urlPrefix,int timeout, ClientRequestRule requestRule, RequestHeaderSetting[] headerModifications, string accessToken)
         {

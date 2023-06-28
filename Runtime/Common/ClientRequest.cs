@@ -30,4 +30,9 @@ namespace PhEngine.Network
             Form.setting.debugMode = mode;
         }
     }
+    
+    public enum NetworkDebugMode
+    {
+        Off, MockServerReturnSuccess, MockServerReturnFail, MockConnectionFail 
+    }
 }

@@ -60,7 +60,7 @@ namespace PhEngine.Network
                 clientRequest.SetDebugMode(config.networkDebugMode);
             
             var finalAccessToken = GetFinalAccessToken();
-            var webRequest = WebRequestCreator.Create(clientRequest, config.url, config.timeoutInSeconds, networkRule.clientRequestRule, requestHeaderModifications, finalAccessToken);
+            var webRequest = WebRequestFactory.Create(clientRequest, config.url, config.timeoutInSeconds, networkRule.clientRequestRule, requestHeaderModifications, finalAccessToken);
             return new APIOperation(clientRequest, webRequest, networkRule.serverResultRule, config.isShowingLog);
             
             string GetFinalAccessToken()
