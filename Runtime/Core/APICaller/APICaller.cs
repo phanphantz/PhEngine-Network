@@ -18,14 +18,21 @@ namespace PhEngine.Network
         [Header("Configs")] 
         [SerializeField] APICallConfig config;
         [SerializeField] NetworkRuleConfig networkRule;
-
-        public void SetAccessToken(string value) => accessToken = value;
         
-        string FinalAccessToken => IsShouldUseEditorAccessToken() ? config.editorAccessToken : accessToken;
-
-        bool IsShouldUseEditorAccessToken()
+        protected override void InitAfterAwake()
         {
-            return Application.isEditor && config.isUseEditorAccessToken;
+            NetworkEvent.OnTimeChanged += SetLatestServerTime;
+        }
+
+        void OnDestroy()
+        {
+            NetworkEvent.OnTimeChanged -= SetLatestServerTime;
+        }
+
+        void SetLatestServerTime(DateTime dateTime)
+        {
+            LatestServerTime = dateTime;
+            latestServerTimeString = dateTime.ToString(CultureInfo.InvariantCulture);
         }
         
         public void CallByRequest(WebRequestForm form, JSONObject json = null)
@@ -47,7 +54,8 @@ namespace PhEngine.Network
             if (config.isForceUseNetworkDebugModeFromThisConfig)
                 clientRequest.SetDebugMode(config.networkDebugMode);
             
-            var webRequest = UnityWebRequestCreator.CreateUnityWebRequest(clientRequest, config.url, config.timeoutInSeconds, networkRule.clientRequestRule, requestHeaderModifications,FinalAccessToken);
+            var finalAccessToken = Application.isEditor && config.isUseEditorAccessToken ? config.editorAccessToken : accessToken;
+            var webRequest = UnityWebRequestCreator.CreateUnityWebRequest(clientRequest, config.url, config.timeoutInSeconds, networkRule.clientRequestRule, requestHeaderModifications,finalAccessToken);
             var apiCall = new APIOperation(clientRequest, webRequest, networkRule.serverResultRule, config.isShowingLog);
             return apiCall;
         }
@@ -56,21 +64,7 @@ namespace PhEngine.Network
         {
             operation.RunOn(this);
         }
-
-        protected override void InitAfterAwake()
-        {
-            NetworkEvent.OnTimeChanged += SetLatestServerTime;
-        }
-
-        void OnDestroy()
-        {
-            NetworkEvent.OnTimeChanged -= SetLatestServerTime;
-        }
-
-        void SetLatestServerTime(DateTime dateTime)
-        {
-            LatestServerTime = dateTime;
-            latestServerTimeString = dateTime.ToString(CultureInfo.InvariantCulture);
-        }
+        
+        public void SetAccessToken(string value) => accessToken = value;
     }
 }
