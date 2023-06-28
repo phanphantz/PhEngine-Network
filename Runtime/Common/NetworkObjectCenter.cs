@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using PhEngine.Core.Operation;
 using PhEngine.JSON;
 using UnityEngine;
 
@@ -13,11 +14,12 @@ namespace PhEngine.Network
         public IReadOnlyCollection<T> ElementList => elementList.AsReadOnly();
         public event Action<IReadOnlyCollection<T>> OnElementUpdate;
 
-        public void GetFromServer()
+        public APIOperation GetFromServer()
         {
-            var api = CreateGetAPI();
-            api.ExpectList<T>(Refresh);
-            api.RunOn(this);
+            var apiOp = CreateGetAPI();
+            apiOp.ExpectList<T>(Refresh);
+            apiOp.Run();
+            return apiOp;
         }
         
         public APIOperation CreateGetAPI()

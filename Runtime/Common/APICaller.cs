@@ -2,6 +2,7 @@ using UnityEngine;
 using System;
 using System.Globalization;
 using PhEngine.Core;
+using PhEngine.Core.Operation;
 using PhEngine.JSON;
 
 namespace PhEngine.Network
@@ -44,8 +45,8 @@ namespace PhEngine.Network
             var call = Create(form, json);
             Call(call);
         }
-        
-        public void Call(APIOperation operation) => operation.RunOn(this);
+
+        public void Call(APIOperation operation) => operation.Run();
         
         public APIOperation Create(WebRequestForm form, JSONObject json = null)
         {
