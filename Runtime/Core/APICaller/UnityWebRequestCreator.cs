@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using PhEngine.JSON;
-using UnityEngine;
 using UnityEngine.Networking;
 
 namespace PhEngine.Network
@@ -156,6 +155,32 @@ namespace PhEngine.Network
         {
             foreach (var requestHeader in additionalRequestHeaders)
                 request.SetRequestHeader(requestHeader.key, requestHeader.value);
+        }
+    }
+    
+    [Serializable]
+    public class ClientRequestRule
+    {
+        public string accessTokenFieldName = "accessToken";
+        public string accessTokenPrefix = "bearer ";
+        public RequestHeaderSetting[] additionalRequestHeaders;
+    }
+    
+    [Serializable]
+    public class RequestHeaderSetting
+    {
+        public string key;
+        public string value;
+
+        public RequestHeaderSetting(RequestHeaderSetting setting)
+        {
+            CopyFrom(setting);
+        }
+        
+        public void CopyFrom(RequestHeaderSetting newSetting)
+        {
+            key = newSetting.key;
+            value = newSetting.value;
         }
     }
 }

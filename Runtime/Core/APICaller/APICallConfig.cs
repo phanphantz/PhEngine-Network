@@ -18,5 +18,4 @@ namespace PhEngine.Network
         public bool isUseEditorAccessToken = true;
         public string editorAccessToken;
     }
-    
 }

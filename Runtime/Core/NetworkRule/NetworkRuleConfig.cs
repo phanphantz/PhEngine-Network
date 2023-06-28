@@ -8,5 +8,4 @@ namespace PhEngine.Network
         public ClientRequestRule clientRequestRule;
         public ServerResultRule serverResultRule;
     }
-    
 }

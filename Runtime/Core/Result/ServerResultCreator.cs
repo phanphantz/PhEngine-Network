@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using PhEngine.JSON;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -140,5 +141,71 @@ namespace PhEngine.Network
             
             return StatusCodeRange.IsBetweenRange(code, successCodeRanges);
         }
+    }
+
+    [Serializable]
+    public class ServerResultRule
+    {
+        public StatusCodeRange[] successStatusCodeRanges;
+        public string messageFieldName = "message";
+        public string dataFieldName = "data";
+        public string statusCodeFieldName = "statusCode";
+        public string currentDateTimeFieldName = "currentDateTime";
+    }
+    
+    [Serializable]
+    public class StatusCodeRange
+    {
+        public int start;
+        public int end;
+
+        public bool IsBetweenRange(int value)
+        {
+            return start <= value && value <= end;
+        }
+        
+        public static bool IsBetweenRange(int value , params StatusCodeRange[] ranges)
+        {
+            return ranges.Any(range => range.IsBetweenRange(value));
+        }
+    }
+    
+    [Serializable]
+    public class ServerResult
+    {
+        public int code;
+        public JSONObject fullJson;
+        public JSONObject dataJson;
+        public string message;
+        public string dateTime;
+        public ServerResultStatus status;
+
+        public ServerResult() {}
+
+        public ServerResult(int code, ServerResultStatus status)
+        {
+            this.code = code;
+            this.status = status;
+        }
+
+        public ServerResult(ServerResultStatus status)
+        {
+            this.status = status;
+        }
+        
+        public ServerResult(int code, JSONObject fullJson, JSONObject dataJson, string message, string dateTime, ServerResultStatus status)
+        {
+            this.code = code;
+            this.fullJson = fullJson;
+            this.dataJson = dataJson;
+            this.message = message;
+            this.dateTime = dateTime;
+            this.status = status;
+        }
+    }
+    
+    public enum ServerResultStatus
+    {
+        ServerReturnSuccess, ServerReturnFail, ConnectionFail 
     }
 }
