@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using PhEngine.Core.Operation;
 using PhEngine.JSON;
+using UnityEngine;
 
 namespace PhEngine.Network
 {
@@ -72,7 +73,10 @@ namespace PhEngine.Network
     public abstract class API
     {
         public event Action<ServerResult> onFail;
-        public abstract WebRequestForm Form { get; }
+        
+        public WebRequestForm Form => form;
+        [SerializeField] protected WebRequestForm form;
+        
         public void Call()
         {
             var api = Create();
