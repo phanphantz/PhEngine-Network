@@ -110,9 +110,10 @@ namespace PhEngine.Network
 
         static void TryCompensateTime(DateTime newTime)
         {
-            var timeDiff = newTime - LatestServerTime;
-            if (IsServerRepliedAtLeastOnce)
-                CompensateTime(timeDiff);
+            //TODO:
+            var requestTime = new DateTime();
+            var roundTripTime = (DateTime.Now - requestTime);
+            //CompensateTime(newTime + (roundTripTime/2f));
         }
 
         static void NotifyNewDayIfNeeded(DateTime newTime)
