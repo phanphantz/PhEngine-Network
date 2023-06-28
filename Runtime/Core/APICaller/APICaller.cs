@@ -36,11 +36,20 @@ namespace PhEngine.Network
         
         public APIOperation Create(WebRequestForm form, JSONObject json = null)
         {
-            //TODO: over-engineer?
-            var creator = new APIOperationCreator(FinalAccessToken, config, networkRule, requestHeaderModifications);
-            var request = new ClientRequest(form, json);
-            var call = creator.Create(request);
-            return call;
+            var clientRequest = new ClientRequest(form, json);
+            var isValid = config && networkRule;
+            if (!isValid)
+            {
+                Debug.LogError("Cannot Create API Operation. APICallerConfig or NetworkRuleConfig is missing.");
+                return null;
+            }
+            
+            if (config.isForceUseNetworkDebugModeFromThisConfig)
+                clientRequest.SetDebugMode(config.networkDebugMode);
+            
+            var webRequest = UnityWebRequestCreator.CreateUnityWebRequest(clientRequest, config.url, config.timeoutInSeconds, networkRule.clientRequestRule, requestHeaderModifications,FinalAccessToken);
+            var apiCall = new APIOperation(clientRequest, webRequest, networkRule.serverResultRule, config.isShowingLog);
+            return apiCall;
         }
 
         public void Call(APIOperation operation)
