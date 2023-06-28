@@ -16,11 +16,13 @@ namespace PhEngine.Network
         public string dateTime;
         public ServerResultStatus status;
         public bool isMocked;
+        public FailureHandling failureHandling;
 
         public ServerResult() {}
         
-        public ServerResult(UnityWebRequest unityWebRequest, ServerResultRule resultRule, NetworkDebugMode debugMode = NetworkDebugMode.Off)
+        public ServerResult(UnityWebRequest unityWebRequest, ServerResultRule resultRule, NetworkDebugMode debugMode = NetworkDebugMode.Off, FailureHandling failureHandling = FailureHandling.None)
         {
+            this.failureHandling = failureHandling;
             if (debugMode != NetworkDebugMode.Off)
             {
                 isMocked = true;

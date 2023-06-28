@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
+using Newtonsoft.Json;
 using PhEngine.Core.Operation;
 using PhEngine.JSON;
+using UnityEngine;
 using UnityEngine.Networking;
 
 namespace PhEngine.Network
@@ -103,7 +106,7 @@ namespace PhEngine.Network
 
         protected override ServerResult CreateResultFromWebRequest(UnityWebRequest request)
         {
-            Result = new ServerResult(WebRequest, ServerResultRule, ClientRequest.DebugMode);
+            Result = new ServerResult(WebRequest, ServerResultRule, ClientRequest.DebugMode, ClientRequest.FailureHandling);
             NetworkEvent.InvokeOnAnyResultReceived(Result);
             return Result;
         }
@@ -111,7 +114,7 @@ namespace PhEngine.Network
     
     public static class APIOperationExtensions
     {
-        public static APIOperation Expect<T>(this APIOperation operation, Action<T> onSuccess, T mockedData = default) where T : JSONConvertibleObject
+        public static APIOperation Expect<T>(this APIOperation operation, Action<T> onSuccess, T mockedData = default)
         {
             operation.OnSuccess += (result)=>
             {
@@ -121,7 +124,7 @@ namespace PhEngine.Network
             return operation;
         }
 
-        public static APIOperation ExpectList<T>(this APIOperation operation, Action<List<T>> onSuccess, List<T> mockedDataList = default) where T : JSONConvertibleObject
+        public static APIOperation ExpectList<T>(this APIOperation operation, Action<List<T>> onSuccess, List<T> mockedDataList = default)
         {
             operation.OnSuccess +=  (result)=>
             {
@@ -131,10 +134,34 @@ namespace PhEngine.Network
             return operation;
         }
 
-        static T GetResultObject<T>(ServerResult result) where T : JSONConvertibleObject
-            => JSONConverter.To<T>(result.dataJson);
+        static T GetResultObject<T>(ServerResult result)
+        {
+            T resultObj = default;
+            try
+            {
+                resultObj = JsonConvert.DeserializeObject<T>(result.dataJson.ToString());
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e);
+            }
 
-        static List<T> GetResultObjectList<T>(ServerResult result) where T : JSONConvertibleObject
-            => JSONConverter.ToList<T>(result.dataJson);
+            return resultObj;
+        }
+
+        static List<T> GetResultObjectList<T>(ServerResult result)
+        {
+            List<T> resultObjList = default;
+            try
+            {
+                resultObjList = JsonConvert.DeserializeObject<List<T>>(result.dataJson.ToString()).ToList();
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e);
+            }
+
+            return resultObjList;
+        }
     }
 }
