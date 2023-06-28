@@ -24,7 +24,7 @@ namespace PhEngine.Network
         
         public APIOperation CreateGetAPI()
         {
-            return APICaller.Instance.Create(getRequestForm, CreateGetRequestBody());
+            return API.Create(getRequestForm, CreateGetRequestBody());
         }
         
         public abstract JSONObject CreateGetRequestBody();

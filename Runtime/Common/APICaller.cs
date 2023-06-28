@@ -2,7 +2,6 @@ using UnityEngine;
 using System;
 using System.Globalization;
 using PhEngine.Core;
-using PhEngine.Core.Operation;
 using PhEngine.JSON;
 
 namespace PhEngine.Network
@@ -32,26 +31,13 @@ namespace PhEngine.Network
             NetworkEvent.OnReceiveServerTime -= SetLatestServerTime;
         }
 
-        void SetLatestServerTime(DateTime dateTime)
+        public static void SetLatestServerTime(DateTime dateTime)
         {
-            LatestServerTime = dateTime;
-            latestServerTimeString = dateTime.ToString(CultureInfo.InvariantCulture);
+            Instance.LatestServerTime = dateTime;
+            Instance.latestServerTimeString = dateTime.ToString(CultureInfo.InvariantCulture);
         }
         
         #endregion
-
-        public void Call(WebRequestForm form, JSONObject json = null)
-        {
-            var call = Create(form, json);
-            Call(call);
-        }
-
-        public void Call(APIOperation operation) => operation.Run();
-
-        public APIOperation Create(API api)
-        {
-            return Create(api.Form, api.CreateBody());
-        }
 
         public APIOperation Create(WebRequestForm form, JSONObject json = null)
         {
@@ -75,6 +61,6 @@ namespace PhEngine.Network
             }
         }
         
-        public void SetAccessToken(string value) => accessToken = value;
+        public void SetAccessToken(string value) => Instance.accessToken = value;
     }
 }

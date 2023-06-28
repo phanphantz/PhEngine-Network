@@ -155,9 +155,9 @@ namespace PhEngine.Network
     
     public static class APIOperationExtensions
     {
-        public static void Add(this Sequence sequence, API api)
+        public static void Add(this Flow flow, API api)
         {
-            sequence.Add(api.Create());
+            flow.Add(api.Create());
         }
         
         public static APIOperation Expect<T>(this APIOperation operation, Action<T> onSuccess, T mockedData = default)

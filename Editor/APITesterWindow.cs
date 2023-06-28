@@ -1,4 +1,5 @@
 ﻿using System;
+using PhEngine.Core.Operation;
 using PhEngine.JSON;
 using UnityEditor;
 using UnityEngine;
@@ -39,12 +40,15 @@ namespace PhEngine.Network.Editor
 
         static void Call()
         {
-            var caller = FindObjectOfType<APICaller>();
-            if (caller == null)
+            var factory = FindObjectOfType<APICaller>();
+            if (factory == null)
                 throw new NullReferenceException("API Caller is missing.");
-            
+
             if (formConfig)
-                caller.Call(formConfig.Form, new JSONObject(requestBody));
+            {
+                var apiOp = factory.Create(formConfig.Form, new JSONObject(requestBody));
+                apiOp.Run();
+            }
         }
     }
 }
