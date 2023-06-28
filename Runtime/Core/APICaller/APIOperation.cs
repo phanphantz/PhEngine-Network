@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using PhEngine.Core.Operation;
+using PhEngine.JSON;
 using UnityEngine.Networking;
 
 namespace PhEngine.Network
@@ -116,5 +118,26 @@ namespace PhEngine.Network
             NetworkEvent.InvokeOnAnyResultReceived(Result);
             return Result;
         }
+    }
+    
+    public static class APIOperationExtensions
+    {
+        public static APIOperation Expect<T>(this APIOperation operation, Action<T> onSuccess) where T : JSONConvertibleObject
+        {
+            operation.OnSuccess +=  (result)=> onSuccess?.Invoke(GetResultObject<T>(result));
+            return operation;
+        }
+
+        public static APIOperation ExpectList<T>(this APIOperation operation, Action<List<T>> onSuccess) where T : JSONConvertibleObject
+        {
+            operation.OnSuccess +=  (result)=> onSuccess?.Invoke(GetResultObjectList<T>(result));
+            return operation;
+        }
+
+        static T GetResultObject<T>(ServerResult result) where T : JSONConvertibleObject
+            => JSONConverter.To<T>(result.dataJson);
+
+        static List<T> GetResultObjectList<T>(ServerResult result) where T : JSONConvertibleObject
+            => JSONConverter.ToList<T>(result.dataJson);
     }
 }

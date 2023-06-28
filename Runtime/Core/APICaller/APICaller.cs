@@ -55,11 +55,11 @@ namespace PhEngine.Network
                 return null;
             }
             
-            if (config.isForceUseNetworkDebugModeFromThisConfig)
+            if (config.isForceUseNetworkDebugMode)
                 clientRequest.SetDebugMode(config.networkDebugMode);
             
             var finalAccessToken = Application.isEditor && config.isUseEditorAccessToken ? config.editorAccessToken : accessToken;
-            var webRequest = UnityWebRequestCreator.Create(clientRequest, config.url, config.timeoutInSeconds, networkRule.clientRequestRule, requestHeaderModifications,finalAccessToken);
+            var webRequest = WebRequestCreator.Create(clientRequest, config.url, config.timeoutInSeconds, networkRule.clientRequestRule, requestHeaderModifications,finalAccessToken);
             return new APIOperation(clientRequest, webRequest, networkRule.serverResultRule, config.isShowingLog);
         }
 

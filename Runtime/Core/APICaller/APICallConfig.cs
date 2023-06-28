@@ -10,7 +10,7 @@ namespace PhEngine.Network
         public int timeoutInSeconds = 10;
        
         [Header("Debugging")]
-        public bool isForceUseNetworkDebugModeFromThisConfig;
+        public bool isForceUseNetworkDebugMode;
         public NetworkDebugMode networkDebugMode;
         
         [Header("Editor Only")]
