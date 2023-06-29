@@ -9,7 +9,7 @@
     "url": "https://github.com/phanphantz/PhEngine-Network"
   },
   "dependencies": {
-    "com.phun.phengine.core": ">=0.1.4"
+    "com.phun.phengine.core": "0.1.4"
   },
   "license": "MIT",
   "author": "Phun Peeticharoenthum"
