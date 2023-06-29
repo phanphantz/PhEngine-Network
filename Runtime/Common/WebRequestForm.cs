@@ -35,7 +35,7 @@ namespace PhEngine.Network
     
     public enum ParameterType
     {
-        None, Query, Body
+        None, Query, Body, Path
     }
 
     public enum WebRequestPathType

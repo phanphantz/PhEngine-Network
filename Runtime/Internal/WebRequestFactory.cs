@@ -44,6 +44,10 @@ namespace PhEngine.Network
                     AssignBodyRawData();
                     break;
                 
+                case ParameterType.Path:
+                    unityWebRequest.url += json.ToString();
+                    return;
+                
                 case ParameterType.None:
                     return;
                 
