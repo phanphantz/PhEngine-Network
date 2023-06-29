@@ -3,9 +3,9 @@
     "rootNamespace": "",
     "references": [
         "PhEngine.Core",
-        "PhEngine.JSON",
         "PhEngine.Core.Operation",
-        "PhEngine.Network"
+        "PhEngine.Network",
+        "PhEngine.Core.JSON"
     ],
     "includePlatforms": [
         "Editor"

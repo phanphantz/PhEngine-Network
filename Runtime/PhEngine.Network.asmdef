@@ -3,8 +3,8 @@
     "rootNamespace": "",
     "references": [
         "PhEngine.Core",
-        "PhEngine.JSON",
-        "PhEngine.Core.Operation"
+        "PhEngine.Core.Operation",
+        "PhEngine.Core.JSON"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

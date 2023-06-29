@@ -5,8 +5,7 @@
   "description": "PhEngine Network package",
   "keywords": [],
   "dependencies": {
-    "com.phun.phengine.core": "",
-    "com.phun.phengine.json": ""
+    "com.phun.phengine.core": ""
   },
   "repository": {
     "type": "git",
