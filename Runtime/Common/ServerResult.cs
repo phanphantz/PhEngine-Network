@@ -31,15 +31,19 @@ namespace PhEngine.Network
                 return;
             }
             
+            code = (int)unityWebRequest.responseCode;
             if (!IsHasResponse())
             {
-                code = (int)unityWebRequest.responseCode;
                 status = GetServerResultStatus();
                 return;
             }
 
             fullJson = new JSONObject(unityWebRequest.downloadHandler.text);
-            code = fullJson.SafeInt(resultRule.statusCodeFieldName);
+            
+            var codeFromJson = fullJson.SafeInt(resultRule.statusCodeFieldName);
+            if (codeFromJson != 0)
+                code = codeFromJson;
+            
             status = GetServerResultStatus();
             dateTime = fullJson.SafeString(resultRule.currentDateTimeFieldName);
             message = fullJson.SafeString(resultRule.messageFieldName);

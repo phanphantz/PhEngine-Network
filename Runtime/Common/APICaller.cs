@@ -39,21 +39,17 @@ namespace PhEngine.Network
         
         #endregion
 
-        public APIOperation Create(WebRequestForm form, JSONObject json = null)
+        public void Prepare(APIOperation api)
         {
             if (config == null || networkRule == null)
             {
-                Debug.LogError("Cannot Create API Operation. APICallerConfig or NetworkRuleConfig is missing.");
-                return null;
+                Debug.LogError("Cannot Prepare API Operation. APICallerConfig or NetworkRuleConfig is missing.");
+                return;
             }
             
-            var clientRequest = new ClientRequest(form, json);
-            if (config.isForceUseNetworkDebugMode)
-                clientRequest.SetDebugMode(config.networkDebugMode);
-            
             var finalAccessToken = GetFinalAccessToken();
-            var webRequest = WebRequestFactory.Create(clientRequest, config.url, config.timeoutInSeconds, networkRule.clientRequestRule, requestHeaderModifications, finalAccessToken);
-            return new APIOperation(clientRequest, webRequest, networkRule.serverResultRule, config.isShowingLog);
+            var builder = new WebRequestBuilder(config, networkRule, requestHeaderModifications, finalAccessToken);
+            api.BuildWebRequest(builder);
             
             string GetFinalAccessToken()
             {

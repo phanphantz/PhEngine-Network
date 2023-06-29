@@ -8,14 +8,14 @@ namespace PhEngine.Network
 {
     internal static class WebRequestFactory
     {
-        internal static UnityWebRequest Create(ClientRequest clientRequest, string urlPrefix,int timeout, ClientRequestRule requestRule, RequestHeaderSetting[] headerModifications, string accessToken)
+        internal static UnityWebRequest Create(WebRequestBuilder builder, ClientRequest clientRequest)
         {
-            var fullURL = GetFullURL(clientRequest, urlPrefix);
+            var fullURL = GetFullURL(clientRequest, builder.Config.url);
             var webRequest = new UnityWebRequest(fullURL, clientRequest.Verb.ToString());
             AddContent(clientRequest, webRequest);
-            AddRequestHeaders(webRequest, requestRule, headerModifications, accessToken);
+            AddRequestHeaders(webRequest, builder.NetworkRuleConfig.clientRequestRule, builder.HeaderSettings, builder.AccessToken);
             webRequest.downloadHandler = new DownloadHandlerBuffer();
-            webRequest.timeout = timeout;
+            webRequest.timeout = builder.Config.timeoutInSeconds;
             return webRequest;
         }
         

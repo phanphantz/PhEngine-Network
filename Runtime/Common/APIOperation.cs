@@ -12,22 +12,55 @@ namespace PhEngine.Network
 {
     public class APIOperation : NetworkOperation<ServerResult>
     {
-        ServerResultRule ServerResultRule { get; }
-        ClientRequest ClientRequest { get; }
+        ClientRequest ClientRequest { get; set; }
         ServerResult Result { get; set; }
-        bool IsShowingLog { get; }
-        ClientRequestLogger Logger { get; }
         
-        public APIOperation(ClientRequest clientRequest, UnityWebRequest webRequest,ServerResultRule serverResultRule, bool isShowingLog = false) : base(webRequest)
+        bool isShowingLog;
+        ClientRequestLogger logger;
+        ServerResultRule serverResultRule;
+
+        public APIOperation(WebRequestForm form, object data) : base(null)
         {
-            ServerResultRule = serverResultRule;
-            ClientRequest = clientRequest;
-            IsShowingLog = isShowingLog;
-            Logger = new ClientRequestLogger(ClientRequest, WebRequest);
+            var jsonString = JsonConvert.SerializeObject(data);
+            Initialize(form, new JSONObject(jsonString));
+        }
+
+        public APIOperation(WebRequestForm form, JSONObject json = null) : base(null)
+        {
+            Initialize(form, json);
+        }
+
+        void Initialize(WebRequestForm form, JSONObject json)
+        {
+            ClientRequest = new ClientRequest(form, json);
             OnStart += HandleOnSend;
             OnFinish += HandleOnReceiveResponse;
             OnSuccess += LogSuccess;
             OnFail += HandleOnFail;
+        }
+
+        public void BuildWebRequest(WebRequestBuilder builder)
+        {
+            if (builder.Config.isForceUseNetworkDebugMode)
+                SetDebugMode(builder.Config.networkDebugMode);
+           
+            isShowingLog = builder.Config.isShowingLog;
+            serverResultRule = builder.NetworkRuleConfig.serverResultRule;
+            var webRequest = WebRequestFactory.Create(builder, ClientRequest);
+            AssignWebRequest(webRequest);
+        }
+
+        protected override void ForceRunOn(MonoBehaviour target)
+        {
+            var caller = APICaller.Instance;
+            if (caller == null)
+            {
+                Debug.LogError("APICaller is missing. APIOperation is aborted.");
+                return;
+            }
+            
+            APICaller.Instance.Prepare(this);
+            base.ForceRunOn(target);
         }
 
         void HandleOnSend()
@@ -36,10 +69,11 @@ namespace PhEngine.Network
                 NetworkEvent.InvokeOnShowLoading(ClientRequest);
             
             NetworkEvent.InvokeOnAnyRequestSend(ClientRequest);
-            if (!IsShowingLog)
+            if (!isShowingLog)
                 return;
             
-            Logger.LogStartRequest();
+            logger = new ClientRequestLogger(ClientRequest, WebRequest);
+            logger.LogStartRequest();
         }
 
         void HandleOnReceiveResponse()
@@ -58,8 +92,8 @@ namespace PhEngine.Network
         
         void LogSuccess(ServerResult result)
         {
-            if (IsShowingLog)
-                Logger.LogSuccess(result);
+            if (isShowingLog)
+                logger.LogSuccess(result);
 
             NetworkEvent.InvokeOnAnyServerSuccess(result);
         }
@@ -74,8 +108,8 @@ namespace PhEngine.Network
         
         void NotifyConnectionFail(ServerResult result)
         {
-            if (IsShowingLog)
-                Logger.LogConnectionFail(result);
+            if (isShowingLog)
+                logger.LogConnectionFail(result);
 
             if (ClientRequest.IsShowConnectionFailError)
                 NetworkEvent.InvokeOnShowConnectionFailError(result);
@@ -85,8 +119,8 @@ namespace PhEngine.Network
 
         void NotifyServerReturnFail(ServerResult result)
         {
-            if (IsShowingLog)
-                Logger.LogServerFail(result);
+            if (isShowingLog)
+                logger.LogServerFail(result);
             
             if (ClientRequest.IsShowServerFailError)
                 NetworkEvent.InvokeOnShowServerFailError(result);
@@ -106,7 +140,7 @@ namespace PhEngine.Network
 
         protected override ServerResult CreateResultFromWebRequest(UnityWebRequest request)
         {
-            Result = new ServerResult(WebRequest, ServerResultRule, ClientRequest);
+            Result = new ServerResult(WebRequest, serverResultRule, ClientRequest);
             NetworkEvent.InvokeOnAnyResultReceived(Result);
             return Result;
         }
@@ -127,6 +161,17 @@ namespace PhEngine.Network
         public void SetDebugMode(NetworkDebugMode mode)
         {
             ClientRequest.SetDebugMode(mode);
+        }
+
+        public void SetRequestBody(JSONObject json)
+        {
+            ClientRequest.SetContent(json);
+        }
+
+        public void SetRequestBody(object data)
+        {
+            var jsonString = JsonConvert.SerializeObject(data);
+            SetRequestBody(new JSONObject(jsonString));
         }
 
         public void SetMockedResponse(object value)
@@ -209,63 +254,5 @@ namespace PhEngine.Network
 
             return true;
         }
-    }
-    
-    public static class APIOperationExtensions
-    {
-        public static void Add(this Flow flow, API api)
-        {
-            flow.Add(api.CreateOperation());
-        }
-        
-        public static APIOperation Expect<T>(this APIOperation operation, Action<T> onSuccess, T mockedData = default)
-        {
-            operation.OnSuccess += (result)=>
-            {
-                if (result.isMocked)
-                {
-                    onSuccess?.Invoke(mockedData);
-                    return;
-                }
-
-                if (operation.TryGetResult<T>(out var resultObj))
-                    onSuccess?.Invoke(resultObj);
-            };
-            return operation;
-        }
-
-        public static APIOperation ExpectJson(this APIOperation operation, Action<JSONObject> onSuccess, JSONObject mockedJson = null)
-        {
-            operation.OnSuccess += (result)=>
-            {
-                if (result.isMocked)
-                {
-                    onSuccess?.Invoke(mockedJson);
-                    return;
-                }
-
-                if (operation.TryGetServerResult(out var resultObj))
-                    onSuccess?.Invoke(resultObj.dataJson);
-            };
-            return operation;
-        }
-
-        public static APIOperation ExpectList<T>(this APIOperation operation, Action<List<T>> onSuccess, List<T> mockedDataList = default)
-        {
-            operation.OnSuccess +=  (result)=>
-            {
-                if (result.isMocked)
-                {
-                    onSuccess?.Invoke(mockedDataList);
-                    return;
-                }
-
-                if (operation.TryGetResultList<T>(out var resultObjList))
-                    onSuccess?.Invoke(resultObjList);
-            };
-            return operation;
-        }
-
-       
     }
 }

@@ -18,7 +18,7 @@ namespace PhEngine.Network
             if (factory == null)
                 throw new NullReferenceException("API Caller is missing.");
 
-            var apiOp = factory.Create(form, new JSONObject(form.requestBodyTemplate));
+            var apiOp = new APIOperation(form, new JSONObject(form.requestBodyTemplate));
             apiOp.Run();
         }
     }

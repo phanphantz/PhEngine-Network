@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
 using PhEngine.Core.JSON;
 using PhEngine.Core.Operation;
 using UnityEngine;
@@ -22,7 +21,7 @@ namespace PhEngine.Network
 
         public virtual APIOperation CreateOperation()
         {
-            var apiOp = Create(Form, CreateBody());
+            var apiOp = new APIOperation(Form, CreateBody());
             apiOp.SetMockedResponse(CreateBody());
             apiOp.OnFail += OnFail;
             return apiOp;
@@ -35,47 +34,19 @@ namespace PhEngine.Network
         
         public static APIOperation Call(WebRequestForm form, JSONObject json = null)
         {
-            var call = Create(form, json);
+            var call = new APIOperation(form, json);
             Call(call);
             return call;
         }
         
         public static APIOperation Call(WebRequestForm form, object requestData)
         {
-            var call = Create(form, requestData);
+            var call = new APIOperation(form, requestData);
             Call(call);
             return call;
         }
 
         public static void Call(APIOperation operation) => operation.Run();
-
-        public static APIOperation Create(API api)
-        {
-            return Create(api.Form, api.CreateBody());
-        }
-
-        public static APIOperation Create(WebRequestForm form, object requestData)
-        {
-            if (APICaller.Instance == null)
-            {
-                Debug.LogError("APICaller instance is missing");
-                return null;
-            }
-            
-            var jsonString = JsonConvert.SerializeObject(requestData);
-            return APICaller.Instance.Create(form, new JSONObject(jsonString));
-        }
-
-        public static APIOperation Create(WebRequestForm form, JSONObject json = null)
-        {
-            if (APICaller.Instance == null)
-            {
-                Debug.LogError("APICaller instance is missing");
-                return null;
-            }
-            
-            return APICaller.Instance.Create(form, json);
-        }
     }
     
     [Serializable]
