@@ -16,16 +16,16 @@ namespace PhEngine.Network
         ServerResult Result { get; set; }
         
         bool isShowingLog;
-        ClientRequestLogger logger;
+        APILogger logger;
         ServerResultRule serverResultRule;
 
-        public APIOperation(WebRequestForm form, object data) : base(null)
+        public APIOperation(WebRequestForm form, object data)
         {
             var jsonString = JsonConvert.SerializeObject(data);
             Initialize(form, new JSONObject(jsonString));
         }
 
-        public APIOperation(WebRequestForm form, JSONObject json = null) : base(null)
+        public APIOperation(WebRequestForm form, JSONObject json = null)
         {
             Initialize(form, json);
         }
@@ -39,18 +39,18 @@ namespace PhEngine.Network
             OnFail += HandleOnFail;
         }
 
-        public void BuildWebRequest(WebRequestBuilder builder)
+        protected override UnityWebRequest CreateWebRequest()
         {
+            var builder = APICaller.Instance.GetBuilder();
             if (builder.Config.isForceUseNetworkDebugMode)
                 SetDebugMode(builder.Config.networkDebugMode);
            
             isShowingLog = builder.Config.isShowingLog;
             serverResultRule = builder.NetworkRuleConfig.serverResultRule;
-            var webRequest = WebRequestFactory.Create(builder, ClientRequest);
-            AssignWebRequest(webRequest);
+            return WebRequestFactory.Create(builder, ClientRequest);
         }
 
-        protected override void ForceRunOn(MonoBehaviour target)
+        public override void RunOn(MonoBehaviour target)
         {
             var caller = APICaller.Instance;
             if (caller == null)
@@ -59,8 +59,7 @@ namespace PhEngine.Network
                 return;
             }
             
-            APICaller.Instance.Prepare(this);
-            base.ForceRunOn(target);
+            base.RunOn(target);
         }
 
         void HandleOnSend()
@@ -72,7 +71,7 @@ namespace PhEngine.Network
             if (!isShowingLog)
                 return;
             
-            logger = new ClientRequestLogger(ClientRequest, WebRequest);
+            logger = new APILogger(ClientRequest, WebRequest);
             logger.LogStartRequest();
         }
 

@@ -39,18 +39,16 @@ namespace PhEngine.Network
         
         #endregion
 
-        public void Prepare(APIOperation api)
+        public WebRequestBuilder GetBuilder()
         {
             if (config == null || networkRule == null)
             {
                 Debug.LogError("Cannot Prepare API Operation. APICallerConfig or NetworkRuleConfig is missing.");
-                return;
+                return null;
             }
             
             var finalAccessToken = GetFinalAccessToken();
-            var builder = new WebRequestBuilder(config, networkRule, requestHeaderModifications, finalAccessToken);
-            api.BuildWebRequest(builder);
-            
+            return new WebRequestBuilder(config, networkRule, requestHeaderModifications, finalAccessToken);
             string GetFinalAccessToken()
             {
                 return Application.isEditor && config.isUseEditorAccessToken ? config.editorAccessToken : accessToken;
