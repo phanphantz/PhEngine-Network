@@ -45,7 +45,7 @@ namespace PhEngine.Network
                     break;
                 
                 case ParameterType.Path:
-                    unityWebRequest.url += json.ToString();
+                    unityWebRequest.url += json.str;
                     return;
                 
                 case ParameterType.None:
