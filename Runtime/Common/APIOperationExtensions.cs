@@ -43,6 +43,81 @@ namespace PhEngine.Network
             };
             return operation;
         }
+        
+        public static APIOperation ExpectRawString(this APIOperation operation, Action<string> onSuccess, string mockedString = null)
+        {
+            operation.OnSuccess += (result)=>
+            {
+                if (result.isMocked)
+                {
+                    onSuccess?.Invoke(mockedString);
+                    return;
+                }
+                
+                onSuccess?.Invoke(result.dataJson.str);
+            };
+            return operation;
+        }
+        
+        public static APIOperation ExpectStringField(this APIOperation operation, string fieldName, Action<string> onSuccess, string mockedString = null)
+        {
+            operation.OnSuccess += (result)=>
+            {
+                if (result.isMocked)
+                {
+                    onSuccess?.Invoke(mockedString);
+                    return;
+                }
+                
+                onSuccess?.Invoke(result.dataJson.SafeString(fieldName));
+            };
+            return operation;
+        }
+        
+        public static APIOperation ExpectIntField(this APIOperation operation, string fieldName, Action<int> onSuccess, int mockedValue = 0)
+        {
+            operation.OnSuccess += (result)=>
+            {
+                if (result.isMocked)
+                {
+                    onSuccess?.Invoke(mockedValue);
+                    return;
+                }
+                
+                onSuccess?.Invoke(result.dataJson.SafeInt(fieldName));
+            };
+            return operation;
+        }
+        
+        public static APIOperation ExpectFloatField(this APIOperation operation, string fieldName, Action<float> onSuccess, float mockedValue = 0)
+        {
+            operation.OnSuccess += (result)=>
+            {
+                if (result.isMocked)
+                {
+                    onSuccess?.Invoke(mockedValue);
+                    return;
+                }
+                
+                onSuccess?.Invoke(result.dataJson.SafeFloat(fieldName));
+            };
+            return operation;
+        }
+        
+        public static APIOperation ExpectBoolField(this APIOperation operation, string fieldName, Action<bool> onSuccess, bool mockedValue = false)
+        {
+            operation.OnSuccess += (result)=>
+            {
+                if (result.isMocked)
+                {
+                    onSuccess?.Invoke(mockedValue);
+                    return;
+                }
+                
+                onSuccess?.Invoke(result.dataJson.SafeBool(fieldName));
+            };
+            return operation;
+        }
 
         public static APIOperation ExpectList<T>(this APIOperation operation, Action<List<T>> onSuccess, List<T> mockedDataList = default)
         {
