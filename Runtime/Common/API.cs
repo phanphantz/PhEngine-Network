@@ -39,6 +39,13 @@ namespace PhEngine.Network
             Call(call);
             return call;
         }
+        
+        public static APIOperation Call(WebRequestForm form, object requestData)
+        {
+            var call = Create(form, requestData);
+            Call(call);
+            return call;
+        }
 
         public static void Call(APIOperation operation) => operation.Run();
 
