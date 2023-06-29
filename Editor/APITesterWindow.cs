@@ -40,15 +40,8 @@ namespace PhEngine.Network.Editor
 
         static void Call()
         {
-            var factory = FindObjectOfType<APICaller>();
-            if (factory == null)
-                throw new NullReferenceException("API Caller is missing.");
-
             if (formConfig)
-            {
-                var apiOp = factory.Create(formConfig.Form, new JSONObject(requestBody));
-                apiOp.Run();
-            }
+                formConfig.Test();
         }
     }
 }

@@ -1,4 +1,7 @@
-﻿using UnityEngine;
+﻿using System;
+using PhEngine.Core.JSON;
+using PhEngine.Core.Operation;
+using UnityEngine;
 
 namespace PhEngine.Network
 {
@@ -7,5 +10,16 @@ namespace PhEngine.Network
     {
         [SerializeField] WebRequestForm form;
         public WebRequestForm Form => form;
+
+        [ContextMenu(nameof(Test))]
+        public void Test()
+        {
+            var factory = FindObjectOfType<APICaller>();
+            if (factory == null)
+                throw new NullReferenceException("API Caller is missing.");
+
+            var apiOp = factory.Create(form, new JSONObject(form.requestBodyTemplate));
+            apiOp.Run();
+        }
     }
 }
