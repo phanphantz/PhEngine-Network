@@ -141,6 +141,74 @@ namespace PhEngine.Network
                 Debug.LogError(e);
             }
         }
+
+        public bool TryGetServerResult(out ServerResult result)
+        {
+            result = null;
+            if (Result == null)
+            {
+                Debug.LogError("TryGetServerResult<T> failed. Result is null.");
+                return false;
+            }
+
+            result = Result;
+            return true;
+        }
+        
+        public bool TryGetResult<T>(out T resultObj)
+        {
+            resultObj = default;
+            if (Result == null)
+            {
+                Debug.LogError("TryGetResult<T> failed. Server Result is null");
+                return false;
+            }
+
+            if (Result.dataJson == null)
+            {
+                Debug.LogError("TryGetResult<T> failed. dataJson is null.");
+                return false;
+            }
+            
+            try
+            {
+                resultObj = JsonConvert.DeserializeObject<T>(Result.dataJson.ToString());
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e);
+                return false;
+            }
+            return true;
+        }
+
+        public bool TryGetResultList<T>(out List<T> resultObjList)
+        {
+            resultObjList = default;
+            if (Result == null)
+            {
+                Debug.LogError("TryGetResultList<T> failed. Server Result is null");
+                return false;
+            }
+
+            if (Result.dataJson == null)
+            {
+                Debug.LogError("TryGetResultList<T> failed. dataJson is null");
+                return false;
+            }
+            
+            try
+            {
+                resultObjList = JsonConvert.DeserializeObject<List<T>>(Result.dataJson.ToString()).ToList();
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e);
+                return false;
+            }
+
+            return true;
+        }
     }
     
     public static class APIOperationExtensions
@@ -154,8 +222,30 @@ namespace PhEngine.Network
         {
             operation.OnSuccess += (result)=>
             {
-                var resultObj = result.isMocked? mockedData : GetResultObject<T>(result);
-                onSuccess?.Invoke(resultObj);
+                if (result.isMocked)
+                {
+                    onSuccess?.Invoke(mockedData);
+                    return;
+                }
+
+                if (operation.TryGetResult<T>(out var resultObj))
+                    onSuccess?.Invoke(resultObj);
+            };
+            return operation;
+        }
+
+        public static APIOperation ExpectJson(this APIOperation operation, Action<JSONObject> onSuccess, JSONObject mockedJson = null)
+        {
+            operation.OnSuccess += (result)=>
+            {
+                if (result.isMocked)
+                {
+                    onSuccess?.Invoke(mockedJson);
+                    return;
+                }
+
+                if (operation.TryGetServerResult(out var resultObj))
+                    onSuccess?.Invoke(resultObj.dataJson);
             };
             return operation;
         }
@@ -164,40 +254,18 @@ namespace PhEngine.Network
         {
             operation.OnSuccess +=  (result)=>
             {
-                var resultList = result.isMocked ? mockedDataList : GetResultObjectList<T>(result);
-                onSuccess?.Invoke(resultList);
+                if (result.isMocked)
+                {
+                    onSuccess?.Invoke(mockedDataList);
+                    return;
+                }
+
+                if (operation.TryGetResultList<T>(out var resultObjList))
+                    onSuccess?.Invoke(resultObjList);
             };
             return operation;
         }
 
-        static T GetResultObject<T>(ServerResult result)
-        {
-            T resultObj = default;
-            try
-            {
-                resultObj = JsonConvert.DeserializeObject<T>(result.dataJson.ToString());
-            }
-            catch (Exception e)
-            {
-                Debug.LogError(e);
-            }
-
-            return resultObj;
-        }
-
-        static List<T> GetResultObjectList<T>(ServerResult result)
-        {
-            List<T> resultObjList = default;
-            try
-            {
-                resultObjList = JsonConvert.DeserializeObject<List<T>>(result.dataJson.ToString()).ToList();
-            }
-            catch (Exception e)
-            {
-                Debug.LogError(e);
-            }
-
-            return resultObjList;
-        }
+       
     }
 }
