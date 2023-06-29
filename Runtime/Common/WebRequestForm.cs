@@ -40,7 +40,7 @@ namespace PhEngine.Network
 
     public enum WebRequestPathType
     {
-        FullURL, Endpoint
+        Endpoint, FullURL
     }
 
     [Serializable]
