@@ -77,6 +77,9 @@ namespace PhEngine.Network
         {
             accessToken ??= "";
             request.SetRequestHeader(requestRule.accessTokenFieldName, requestRule.accessTokenPrefix + accessToken);
+
+            if (requestRule.additionalRequestHeaders == null)
+                return;
             
             var headers = CreateFinalHeaderSettings();
             foreach (var requestHeader in headers)
