@@ -139,7 +139,8 @@ namespace PhEngine.Network
 
         protected override ServerResult CreateResultFromWebRequest(UnityWebRequest request)
         {
-            Result = new ServerResult(WebRequest, serverResultRule, ClientRequest);
+            var elapsedTimeSeconds = ElapsedRealTime.TotalSeconds;
+            Result = new ServerResult(WebRequest, serverResultRule, ClientRequest, elapsedTimeSeconds);
             NetworkEvent.InvokeOnAnyResultReceived(Result);
             return Result;
         }

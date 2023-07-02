@@ -14,14 +14,16 @@ namespace PhEngine.Network
         public JSONObject dataJson;
         public string message;
         public string dateTime;
+        public float elapsedTimeSeconds;
         public ServerResultStatus status;
         public bool isMocked;
         public FailureHandling failureHandling;
 
         public ServerResult() {}
         
-        public ServerResult(UnityWebRequest unityWebRequest, ServerResultRule resultRule, ClientRequest clientRequest)
+        public ServerResult(UnityWebRequest unityWebRequest, ServerResultRule resultRule, ClientRequest clientRequest, float elapsedTimeSeconds)
         {
+            this.elapsedTimeSeconds = elapsedTimeSeconds;
             failureHandling = clientRequest.FailureHandling;
             if (clientRequest.DebugMode != NetworkDebugMode.Off)
             {
