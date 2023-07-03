@@ -1,3 +1,4 @@
+using System.Net;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -51,7 +52,7 @@ namespace PhEngine.Network
         }
         
         string GetConnectionFailLog(ServerResult result)
-            => GetResultLog(result, APILogKeyword.ConnectionFail, UnityWebRequest.downloadHandler.text);
+            => GetResultLog(result, APILogKeyword.ConnectionFail(result.HttpStatus), UnityWebRequest.downloadHandler.text);
 
         string GetServerFailLog(ServerResult result)
             => GetResultLog(result, APILogKeyword.ServerFail, GetResultJsonString(result));
@@ -127,7 +128,15 @@ namespace PhEngine.Network
         public static string ServerFail => APILogger.IsUsePrettyFormat ? "<color=red><b>SERVER FAIL</b></color>" : "SERVER FAIL";
         public static string Success => APILogger.IsUsePrettyFormat ? "<color=green><b>SUCCESS</b></color>" : "SUCCESS";
         public static string Mock => APILogger.IsUsePrettyFormat ? "<color=yellow><b>MOCK </b></color>" : "MOCK ";
-        public static string ConnectionFail => APILogger.IsUsePrettyFormat ? "<color=red><b>CONNECTION FAIL</b></color>" : "CONNECTION FAIL";
+
+        public static string ConnectionFail(HttpStatusCode status)
+        {
+            if (APILogger.IsUsePrettyFormat)
+                    return $"<color=red><b>{status.ToString().ToUpper()}</b></color>";
+            
+            return status.ToString().ToUpper();
+        }
+        
         public static string Start => APILogger.IsUsePrettyFormat ? "<b>START...</b>" : "START...";
     }
 }
