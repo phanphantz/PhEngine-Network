@@ -26,6 +26,17 @@ namespace PhEngine.Network
             this.setting = setting ?? new WebRequestSetting();
             this.requestBodyTemplate = requestBodyTemplate;
         }
+
+        public WebRequestForm(WebRequestForm form)
+        {
+            name = string.Empty;
+            path = form.path;
+            verb = form.verb;
+            parameterType = form.parameterType;
+            type = form.type;
+            setting = form.setting;
+            requestBodyTemplate = form.requestBodyTemplate;
+        }
     }
     
     public enum HTTPVerb

@@ -9,7 +9,7 @@ namespace PhEngine.Network
     public class WebRequestFormConfig : ScriptableObject
     {
         [SerializeField] WebRequestForm form;
-        public WebRequestForm Form => form;
+        public WebRequestForm Form => new WebRequestForm(form);
 
         [ContextMenu(nameof(Test))]
         public void Test()
