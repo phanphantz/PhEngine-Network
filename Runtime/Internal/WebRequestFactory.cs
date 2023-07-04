@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using UnityEngine.Networking;
@@ -10,7 +11,7 @@ namespace PhEngine.Network
     {
         internal static UnityWebRequest Create(WebRequestBuilder builder, ClientRequest clientRequest)
         {
-            var fullURL = GetFullURL(clientRequest, builder.Config.url);
+            var fullURL = GetFullURL(clientRequest, builder.Config.backend);
             var webRequest = new UnityWebRequest(fullURL, clientRequest.Verb.ToString());
             AddContent(clientRequest, webRequest);
             AddRequestHeaders(webRequest, builder.Config.clientRequestRule, builder.HeaderSettings, builder.AccessToken);
@@ -19,11 +20,16 @@ namespace PhEngine.Network
             return webRequest;
         }
         
-        static string GetFullURL(ClientRequest clientRequest, string urlPrefix = "")
+        static string GetFullURL(ClientRequest clientRequest, BackendConfig backend)
         {
             var fullURL = clientRequest.Destination;
             if (clientRequest.Type == WebRequestPathType.Endpoint)
-                fullURL = urlPrefix + clientRequest.Destination;
+            {
+                if (backend == null)
+                    throw new ArgumentNullException(nameof(backend));
+
+                fullURL = backend.baseUrl + clientRequest.Destination;
+            }
 
             return fullURL;
         }

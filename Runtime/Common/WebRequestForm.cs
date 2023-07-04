@@ -41,7 +41,7 @@ namespace PhEngine.Network
     
     public enum HTTPVerb
     {
-        GET, HEAD, POST, PUT, CREATE, PATCH, DELETE
+        GET, HEAD, POST, PUT, PATCH, DELETE
     }
     
     public enum ParameterType

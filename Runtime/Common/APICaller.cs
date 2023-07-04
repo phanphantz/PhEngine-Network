@@ -45,18 +45,18 @@ namespace PhEngine.Network
         {
             if (config == null)
             {
-                Debug.LogError("Cannot Prepare API Operation. APICallerConfig or NetworkRuleConfig is missing.");
+                Debug.LogError("Cannot Prepare API Operation. APICallerConfig is missing.");
                 return null;
             }
-            
+
             var finalAccessToken = GetFinalAccessToken();
             return new WebRequestBuilder(config, requestHeaderModifications, finalAccessToken);
             string GetFinalAccessToken()
             {
 #if UNITY_EDITOR
-                if (Application.isEditor && config.isUseEditorAccessToken)
+                if (Application.isEditor && config.backend && config.backend.isUseEditorAccessToken)
                 {
-                    return config.editorAccessToken;
+                    return config.backend.editorAccessToken;
                 }
 #endif
                 
