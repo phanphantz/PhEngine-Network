@@ -9,23 +9,14 @@ namespace PhEngine.Network
         [SerializeField] DateTimeFormat timeFormat;
         [SerializeField] bool isCheckBeforeCall = true;
         [SerializeField] bool isCheckAfterFail = true;
-
-        public void Watch(Flow flow)
-        {
-            foreach (var operation in flow.Operations)
-            {
-                if (operation is APIOperation apiOp)
-                    Watch(apiOp, flow);
-            }
-        }
-
-        public void Watch(APIOperation apiOp, Flow flow = null)
+        
+        public void Track(APIOperation apiOp, Flow parentFlow = null)
         {
             if (isCheckBeforeCall)
-                apiOp.AbortOn(() => TryHandleOnClientExpired(apiOp, flow), "Client's Access Token is expired. Fixing...", FailureHandling.None, -1);
+                apiOp.AbortOn(() => TryHandleOnClientExpired(apiOp, parentFlow), "Client's Access Token is expired. Fixing...", FailureHandling.None, -1);
 
             if (isCheckAfterFail)
-                apiOp.OnFail += result => TryHandleOnServerExpired(apiOp, flow, result);
+                apiOp.OnFail += result => TryHandleOnServerExpired(apiOp, parentFlow, result);
         }
 
         bool TryHandleOnClientExpired(APIOperation startOperation, Flow flow)
@@ -47,7 +38,7 @@ namespace PhEngine.Network
         {
             var newFlow = new Flow();
             if (flow != null)
-                newFlow = flow.CreateCopy(startOperation);
+                newFlow = flow.CreateRetryFlow(startOperation);
             else
                 newFlow.Add(startOperation);
 

@@ -18,10 +18,9 @@ namespace PhEngine.Network
         APILogOption logOption;
         APILogger logger;
         ServerResultRule serverResultRule;
-        bool isTrackingAccessToken;
 
         bool IsShowingLog => logOption != APILogOption.None;
-        
+
         public APIOperation(WebRequestForm form, object data)
         {
             var jsonString = JsonConvert.SerializeObject(data);
@@ -47,10 +46,7 @@ namespace PhEngine.Network
             var builder = APICaller.Instance.GetBuilder();
             if (builder.Config.isForceUseNetworkDebugMode)
                 SetDebugMode(builder.Config.networkDebugMode);
-            
-            //if (builder.AccessTokenValidator)
-            //builder.AccessTokenValidator.Watch(this);
-                
+
             logOption = builder.Config.logOption;
             serverResultRule = builder.Config.serverResultRule;
             return WebRequestFactory.Create(builder, ClientRequest);
@@ -65,6 +61,8 @@ namespace PhEngine.Network
                 return;
             }
             
+            if (caller.AccessTokenValidator)
+                caller.AccessTokenValidator.Track(this, ParentFlow);
             
             base.RunOn(target);
         }
@@ -286,7 +284,7 @@ namespace PhEngine.Network
                 return result;
             };
         }
-
+        
         protected override ServerResult GetGuardConditionResult() => Result;
     }
 }

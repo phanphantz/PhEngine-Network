@@ -9,9 +9,10 @@ namespace PhEngine.Network
     {
         public static void Add(this Flow flow, API api)
         {
-            flow.Add(api.CreateOperation());
+            var apiOp = api.CreateOperation();
+            flow.Add(apiOp);
         }
-        
+
         public static APIOperation Expect<T>(this APIOperation operation, Action<T> onSuccess, T mockedData = default)
         {
             operation.OnSuccess += (result)=>
