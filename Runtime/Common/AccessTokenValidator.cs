@@ -50,7 +50,10 @@ namespace PhEngine.Network
 
             var refreshTokenCall = CreateRefreshAccessTokenCall();
             if (refreshTokenCall != null)
+            {
                 retryFlow.Insert(0, refreshTokenCall);
+                retryFlow.OnCompleteAll += () => retryFlow.Remove(refreshTokenCall);
+            }
             
             retryFlow.RunAsSeries(); 
         }
