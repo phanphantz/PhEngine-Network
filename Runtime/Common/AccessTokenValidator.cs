@@ -39,9 +39,14 @@ namespace PhEngine.Network
         {
             var retryFlow = new Flow();
             if (flow != null)
-                retryFlow = flow.ToRetryFlow(startOperation);
+            {
+                retryFlow = flow;
+                retryFlow.Recycle(startOperation);
+            }
             else
+            {
                 retryFlow.Add(startOperation);
+            }
 
             var refreshTokenCall = CreateRefreshAccessTokenCall();
             if (refreshTokenCall != null)
