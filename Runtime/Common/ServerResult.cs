@@ -22,6 +22,14 @@ namespace PhEngine.Network
         public FailureHandling failureHandling;
 
         public ServerResult() {}
+
+        public ServerResult(ServerResultStatus status, string message, int code, FailureHandling failureHandling)
+        {
+            this.message = message;
+            this.code = code;
+            this.status = status;
+            this.failureHandling = failureHandling;
+        }
         
         public ServerResult(UnityWebRequest unityWebRequest, ServerResultRule resultRule, ClientRequest clientRequest, float elapsedTimeSeconds)
         {
@@ -96,11 +104,16 @@ namespace PhEngine.Network
                 _ => throw new ArgumentOutOfRangeException()
             };
         }
+
+        public static ServerResult CreateClientFailResult(string message, FailureHandling failureHandling,int code = 0)
+        {
+            return new ServerResult(ServerResultStatus.ClientFail, message, code, failureHandling);
+        }
     }
     
     public enum ServerResultStatus
     {
-        ServerReturnSuccess, ServerReturnFail, ConnectionFail 
+        ServerReturnSuccess, ServerReturnFail, ConnectionFail, ClientFail
     }
     
     [Serializable]
