@@ -10,8 +10,9 @@ namespace PhEngine.Network
         [SerializeField] bool isCheckBeforeCall = true;
         [SerializeField] bool isCheckAfterFail = true;
         
-        public void Track(APIOperation apiOp, Flow parentFlow = null)
+        public void Track(APIOperation apiOp)
         {
+            var parentFlow = apiOp.ParentFlow;
             if (isCheckBeforeCall)
                 apiOp.AbortOn(() => TryHandleOnClientExpired(apiOp, parentFlow), "Client's Access Token is expired. Fixing...", FailureHandling.None, -1);
 
@@ -36,17 +37,17 @@ namespace PhEngine.Network
 
         void Rerun(APIOperation startOperation, Flow flow = null)
         {
-            var newFlow = new Flow();
+            var retryFlow = new Flow();
             if (flow != null)
-                newFlow = flow.CreateRetryFlow(startOperation);
+                retryFlow = flow.ToRetryFlow(startOperation);
             else
-                newFlow.Add(startOperation);
+                retryFlow.Add(startOperation);
 
             var refreshTokenCall = CreateRefreshAccessTokenCall();
             if (refreshTokenCall != null)
-                newFlow.Insert(0, refreshTokenCall);
+                retryFlow.Insert(0, refreshTokenCall);
             
-            newFlow.RunAsSeries(); 
+            retryFlow.RunAsSeries(); 
         }
 
         void TryHandleOnServerExpired(APIOperation startOperation, Flow flow, ServerResult result)

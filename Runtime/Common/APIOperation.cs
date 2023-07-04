@@ -12,9 +12,8 @@ namespace PhEngine.Network
 {
     public class APIOperation : NetworkOperation<ServerResult>
     {
-        ClientRequest ClientRequest { get; set; }
+        internal ClientRequest ClientRequest { get; private set; }
         ServerResult Result { get; set; }
-
         APILogOption logOption;
         APILogger logger;
         ServerResultRule serverResultRule;
@@ -43,13 +42,7 @@ namespace PhEngine.Network
 
         protected override UnityWebRequest CreateWebRequest()
         {
-            var builder = APICaller.Instance.GetBuilder();
-            if (builder.Config.isForceUseNetworkDebugMode)
-                SetDebugMode(builder.Config.networkDebugMode);
-
-            logOption = builder.Config.logOption;
-            serverResultRule = builder.Config.serverResultRule;
-            return WebRequestFactory.Create(builder, ClientRequest);
+            return APICaller.Instance.CreateWebRequest(this);
         }
 
         public override void RunOn(MonoBehaviour target)
@@ -60,9 +53,15 @@ namespace PhEngine.Network
                 Debug.LogError("APICaller is missing. APIOperation is aborted.");
                 return;
             }
+
+            if (caller.Config == null)
+            {
+                Debug.LogError("Cannot Prepare API Operation. APICallConfig is missing.");
+                return;
+            }
             
             if (caller.AccessTokenValidator)
-                caller.AccessTokenValidator.Track(this, ParentFlow);
+                caller.AccessTokenValidator.Track(this);
             
             base.RunOn(target);
         }
@@ -109,7 +108,7 @@ namespace PhEngine.Network
             else if (result.status == ServerResultStatus.ServerReturnFail)
                 NotifyServerReturnFail(result);
             else if (result.status == ServerResultStatus.ClientFail)
-                NotifyClientFail(result);
+                NotifyClientFail(new ClientError(result));
         }
 
         void NotifyConnectionFail(ServerResult result)
@@ -134,15 +133,15 @@ namespace PhEngine.Network
             NetworkEvent.InvokeOnAnyServerFail(result);
         }
         
-        void NotifyClientFail(ServerResult result)
+        void NotifyClientFail(ClientError error)
         {
             if (IsShowingLog)
-                Debug.LogError($"Client Fail : {result.message} (Code: {result.code})");
+                Debug.LogError(error);
             
-            if (ClientRequest.IsShowConnectionFailError)
-                NetworkEvent.InvokeOnShowClientFailError(result);
+            if (ClientRequest.IsShowErrorOnClientFail)
+                NetworkEvent.InvokeOnShowClientFailError(error);
             
-            NetworkEvent.InvokeOnAnyClientFail(result);
+            NetworkEvent.InvokeOnAnyClientFail(error);
         }
         
         protected override float GetWebRequestProgress()
@@ -286,5 +285,15 @@ namespace PhEngine.Network
         }
         
         protected override ServerResult GetGuardConditionResult() => Result;
+
+        internal void SetLogOption(APILogOption option)
+        {
+            logOption = option;
+        }
+
+        internal void SetServerResultRule(ServerResultRule rule)
+        {
+            serverResultRule = rule;
+        }
     }
 }

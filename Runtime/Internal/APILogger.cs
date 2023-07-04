@@ -58,7 +58,7 @@ namespace PhEngine.Network
         }
         
         string GetConnectionFailLog(ServerResult result)
-            => GetResultLog(result, GetConnectionFailKeyword(result.HttpStatus, LogOption), UnityWebRequest.downloadHandler.text);
+            => GetResultLog(result, GetConnectionFailKeyword(result.httpStatus, LogOption), UnityWebRequest.downloadHandler.text);
         
         string GetServerFailLog(ServerResult result)
             => GetResultLog(result, GetServerFailKeyword(LogOption), GetResultJsonString(result));

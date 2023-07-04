@@ -4,6 +4,7 @@ using System.Linq;
 using PhEngine.Core.JSON;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.Serialization;
 
 namespace PhEngine.Network
 {
@@ -17,7 +18,7 @@ namespace PhEngine.Network
         public string dateTime;
         public float elapsedTimeSeconds;
         public ServerResultStatus status;
-        public HttpStatusCode HttpStatus;
+        public HttpStatusCode httpStatus;
         public bool isMocked;
         public FailureHandling failureHandling;
 
@@ -44,7 +45,7 @@ namespace PhEngine.Network
             }
             
             code = (int)unityWebRequest.responseCode;
-            HttpStatus = (HttpStatusCode)code;
+            httpStatus = (HttpStatusCode)code;
             if (!IsHasResponse())
             {
                 status = GetServerResultStatus();

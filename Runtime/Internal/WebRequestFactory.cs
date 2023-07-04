@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
 using UnityEngine.Networking;
@@ -9,14 +8,14 @@ namespace PhEngine.Network
 {
     internal static class WebRequestFactory
     {
-        internal static UnityWebRequest Create(WebRequestBuilder builder, ClientRequest clientRequest)
+        internal static UnityWebRequest Create(APICallConfig config, RequestHeaderSetting[] headerSettings, string accessToken, ClientRequest clientRequest)
         {
-            var fullURL = GetFullURL(clientRequest, builder.Config.backend);
+            var fullURL = GetFullURL(clientRequest, config.backend);
             var webRequest = new UnityWebRequest(fullURL, clientRequest.Verb.ToString());
             AddContent(clientRequest, webRequest);
-            AddRequestHeaders(webRequest, builder.Config.clientRequestRule, builder.HeaderSettings, builder.AccessToken);
+            AddRequestHeaders(webRequest, config.clientRequestRule, headerSettings, accessToken);
             webRequest.downloadHandler = new DownloadHandlerBuffer();
-            webRequest.timeout = builder.Config.timeoutInSeconds;
+            webRequest.timeout = config.timeoutInSeconds;
             return webRequest;
         }
         

@@ -60,6 +60,7 @@ namespace PhEngine.Network
         public bool isShowLoading = true;
         public bool isShowErrorOnConnectionFail = true;
         public bool isShowErrorOnServerFail = true;
+        public bool isShowErrorOnClientFail = true;
         public NetworkDebugMode debugMode;
         public FailureHandling failureHandling;
     }

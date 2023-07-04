@@ -2,6 +2,7 @@ using UnityEngine;
 using System;
 using System.Globalization;
 using PhEngine.Core;
+using UnityEngine.Networking;
 
 namespace PhEngine.Network
 {
@@ -19,6 +20,7 @@ namespace PhEngine.Network
 
         [Header("Configs")] 
         [SerializeField] APICallConfig config;
+        public APICallConfig Config => config;
 
         public AccessTokenValidator AccessTokenValidator => accessTokenValidator;
         [SerializeField] AccessTokenValidator accessTokenValidator;
@@ -42,26 +44,24 @@ namespace PhEngine.Network
         }
         
         #endregion
-
-        public WebRequestBuilder GetBuilder()
+        
+        internal UnityWebRequest CreateWebRequest(APIOperation operation)
         {
-            if (config == null)
-            {
-                Debug.LogError("Cannot Prepare API Operation. APICallerConfig is missing.");
-                return null;
-            }
+            if (config.isForceUseNetworkDebugMode)
+                operation.SetDebugMode(config.networkDebugMode);
 
+            operation.SetLogOption(config.logOption);
+            operation.SetServerResultRule(config.serverResultRule);
+            
             var finalAccessToken = GetFinalAccessToken();
-            return new WebRequestBuilder(config, requestHeaderModifications, finalAccessToken, accessTokenValidator);
+            return WebRequestFactory.Create(config, requestHeaderModifications, finalAccessToken, operation.ClientRequest);
+            
             string GetFinalAccessToken()
             {
 #if UNITY_EDITOR
                 if (Application.isEditor && config.backend && config.backend.isUseEditorAccessToken)
-                {
                     return config.backend.editorAccessToken;
-                }
 #endif
-                
                 return accessToken;
             }
         }

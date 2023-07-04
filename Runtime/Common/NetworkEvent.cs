@@ -15,8 +15,8 @@ namespace PhEngine.Network
         public static event Action<ServerResult> OnAnyServerFail;
         public static event Action<ServerResult> OnShowServerFailError;
         public static event Action<ServerResult> OnAnyServerSuccess;
-        public static event Action<ServerResult> OnAnyClientFail;
-        public static event Action<ServerResult> OnShowClientFailError;
+        public static event Action<ClientError> OnAnyClientFail;
+        public static event Action<ClientError> OnShowClientFailError;
         
         public static event Action<DateTime> OnDayChanged;
         public static event Action<DateTime> OnReceiveServerTime;
@@ -50,9 +50,9 @@ namespace PhEngine.Network
             OnAnyConnectionFail?.Invoke(result);
         }
         
-        internal static void InvokeOnAnyClientFail(ServerResult result)
+        internal static void InvokeOnAnyClientFail(ClientError error)
         {
-            OnAnyClientFail?.Invoke(result);
+            OnAnyClientFail?.Invoke(error);
         }
         
         internal static void InvokeOnAnyServerFail(ServerResult result)
@@ -75,9 +75,9 @@ namespace PhEngine.Network
             OnShowServerFailError?.Invoke(result);
         }
 
-        internal static void InvokeOnShowClientFailError(ServerResult result)
+        internal static void InvokeOnShowClientFailError(ClientError error)
         {
-            OnShowClientFailError?.Invoke(result);
+            OnShowClientFailError?.Invoke(error);
         }
 
         public static void SetLatestServerTimeByString(string timeString)
