@@ -257,18 +257,18 @@ namespace PhEngine.Network
             return true;
         }
 
-        public void AbortOn(Func<bool> condition, string error, FailureHandling failureHandling, int errorCode = 0)
+        public void AbortOn(Func<bool> condition, string error = "", FailureHandling failureHandling = FailureHandling.None, int errorCode = 0)
         {
             GuardCondition += () =>
             {
                 var result = condition.Invoke();
                 if (result)
-                {
                     Result = ServerResult.CreateClientFailResult(error, failureHandling, errorCode);
-                }
 
                 return result;
             };
         }
+
+        protected override ServerResult GetGuardConditionResult() => Result;
     }
 }
