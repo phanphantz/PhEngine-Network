@@ -8,7 +8,7 @@ namespace PhEngine.Network
         [Header("Connection")] 
         public BackendConfig backend;
         public int timeoutInSeconds = 10;
-       
+        
         [Header("Debugging")]
         public bool isForceUseNetworkDebugMode;
         public NetworkDebugMode networkDebugMode;

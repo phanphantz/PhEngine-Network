@@ -18,9 +18,10 @@ namespace PhEngine.Network
         APILogOption logOption;
         APILogger logger;
         ServerResultRule serverResultRule;
+        bool isTrackingAccessToken;
 
         bool IsShowingLog => logOption != APILogOption.None;
-
+        
         public APIOperation(WebRequestForm form, object data)
         {
             var jsonString = JsonConvert.SerializeObject(data);
@@ -46,7 +47,10 @@ namespace PhEngine.Network
             var builder = APICaller.Instance.GetBuilder();
             if (builder.Config.isForceUseNetworkDebugMode)
                 SetDebugMode(builder.Config.networkDebugMode);
-
+            
+            //if (builder.AccessTokenValidator)
+            //builder.AccessTokenValidator.Watch(this);
+                
             logOption = builder.Config.logOption;
             serverResultRule = builder.Config.serverResultRule;
             return WebRequestFactory.Create(builder, ClientRequest);
@@ -60,6 +64,7 @@ namespace PhEngine.Network
                 Debug.LogError("APICaller is missing. APIOperation is aborted.");
                 return;
             }
+            
             
             base.RunOn(target);
         }
@@ -105,8 +110,10 @@ namespace PhEngine.Network
                 NotifyConnectionFail(result);
             else if (result.status == ServerResultStatus.ServerReturnFail)
                 NotifyServerReturnFail(result);
+            else if (result.status == ServerResultStatus.ClientFail)
+                NotifyClientFail(result);
         }
-        
+
         void NotifyConnectionFail(ServerResult result)
         {
             if (IsShowingLog)
@@ -127,6 +134,17 @@ namespace PhEngine.Network
                 NetworkEvent.InvokeOnShowServerFailError(result);
 
             NetworkEvent.InvokeOnAnyServerFail(result);
+        }
+        
+        void NotifyClientFail(ServerResult result)
+        {
+            if (IsShowingLog)
+                Debug.LogError($"Client Fail : {result.message} (Code: {result.code})");
+            
+            if (ClientRequest.IsShowConnectionFailError)
+                NetworkEvent.InvokeOnShowClientFailError(result);
+            
+            NetworkEvent.InvokeOnAnyClientFail(result);
         }
         
         protected override float GetWebRequestProgress()

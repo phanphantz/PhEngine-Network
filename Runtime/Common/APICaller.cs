@@ -2,7 +2,6 @@ using UnityEngine;
 using System;
 using System.Globalization;
 using PhEngine.Core;
-using PhEngine.Core.JSON;
 
 namespace PhEngine.Network
 {
@@ -20,6 +19,9 @@ namespace PhEngine.Network
 
         [Header("Configs")] 
         [SerializeField] APICallConfig config;
+
+        public AccessTokenValidator AccessTokenValidator => accessTokenValidator;
+        [SerializeField] AccessTokenValidator accessTokenValidator;
 
         #region Initialization
         
@@ -50,7 +52,7 @@ namespace PhEngine.Network
             }
 
             var finalAccessToken = GetFinalAccessToken();
-            return new WebRequestBuilder(config, requestHeaderModifications, finalAccessToken);
+            return new WebRequestBuilder(config, requestHeaderModifications, finalAccessToken, accessTokenValidator);
             string GetFinalAccessToken()
             {
 #if UNITY_EDITOR

@@ -59,7 +59,7 @@ namespace PhEngine.Network
         
         string GetConnectionFailLog(ServerResult result)
             => GetResultLog(result, GetConnectionFailKeyword(result.HttpStatus, LogOption), UnityWebRequest.downloadHandler.text);
-
+        
         string GetServerFailLog(ServerResult result)
             => GetResultLog(result, GetServerFailKeyword(LogOption), GetResultJsonString(result));
         
@@ -69,7 +69,7 @@ namespace PhEngine.Network
         string GetResultLog(ServerResult result, string logType, string body)
         {
             var stringBuilder = GetEndpointLogTitle(ClientRequest, logType, result.code);
-            if (result.status != ServerResultStatus.ServerReturnSuccess)
+            if (result.status != ServerResultStatus.ServerReturnSuccess && result.status != ServerResultStatus.ClientFail)
                 stringBuilder.Append($"{UnityWebRequest.error}\n");
             
             if ((int)LogOption >= 1)
@@ -141,7 +141,6 @@ namespace PhEngine.Network
             
             return status.ToString();
         }
-        
         public static string GetStartKeyword(APILogOption option) => option == APILogOption.Pretty ? "<b>START...</b>" : "START...";
     }
 }
