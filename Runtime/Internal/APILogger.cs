@@ -9,27 +9,33 @@ namespace PhEngine.Network
     {
         ClientRequest ClientRequest { get; }
         UnityWebRequest UnityWebRequest { get; }
-        public static bool IsUsePrettyFormat => Application.isEditor;
-        public APILogger(ClientRequest clientRequest, UnityWebRequest unityWebRequest)
+        APILogOption LogOption { get; }
+        public bool IsUsePrettyFormat => LogOption == APILogOption.Pretty;
+        
+        public APILogger(ClientRequest clientRequest, UnityWebRequest unityWebRequest, APILogOption logOption)
         {
             ClientRequest = clientRequest;
             UnityWebRequest = unityWebRequest;
+            LogOption = logOption;
         }
         
         public void LogStartRequest()
         {
-            var stringBuilder = GetEndpointLogTitle(ClientRequest, APILogKeyword.Start);
-            if (ClientRequest.ParameterType == ParameterType.Body)
+            var stringBuilder = GetEndpointLogTitle(ClientRequest, GetStartKeyword(LogOption));
+            if (ClientRequest.ParameterType == ParameterType.Body && (int)LogOption >= 1)
             {
                 stringBuilder.Append("\n");
                 stringBuilder.Append(ClientRequest.Content.Print(IsUsePrettyFormat));
                 stringBuilder.Append("\n\n");
             }
 
-            stringBuilder.Append("URL: ");
-            stringBuilder.Append(UnityWebRequest.url);
-            stringBuilder.Append("\n");
-            
+            if ((int) LogOption >= 1)
+            {
+                stringBuilder.Append("URL: ");
+                stringBuilder.Append(UnityWebRequest.url);
+                stringBuilder.Append("\n");
+            }
+
             Log(stringBuilder.ToString());
         }
         
@@ -52,13 +58,13 @@ namespace PhEngine.Network
         }
         
         string GetConnectionFailLog(ServerResult result)
-            => GetResultLog(result, APILogKeyword.ConnectionFail(result.HttpStatus), UnityWebRequest.downloadHandler.text);
+            => GetResultLog(result, GetConnectionFailKeyword(result.HttpStatus, LogOption), UnityWebRequest.downloadHandler.text);
 
         string GetServerFailLog(ServerResult result)
-            => GetResultLog(result, APILogKeyword.ServerFail, GetResultJsonString(result));
+            => GetResultLog(result, GetServerFailKeyword(LogOption), GetResultJsonString(result));
         
         string GetSuccessLog(ServerResult result)
-            => GetResultLog(result, APILogKeyword.Success, GetResultJsonString(result));
+            => GetResultLog(result, GetSuccessKeyword(LogOption), GetResultJsonString(result));
 
         string GetResultLog(ServerResult result, string logType, string body)
         {
@@ -66,15 +72,17 @@ namespace PhEngine.Network
             if (result.status != ServerResultStatus.ServerReturnSuccess)
                 stringBuilder.Append($"{UnityWebRequest.error}\n");
             
-            stringBuilder.Append($"{body}\n\n");
+            if ((int)LogOption >= 1)
+                stringBuilder.Append($"{body}\n\n");
+            
             return stringBuilder.ToString();
         }
         
-        static StringBuilder GetEndpointLogTitle(ClientRequest request, string logType, int? code = null)
+        StringBuilder GetEndpointLogTitle(ClientRequest request, string logType, int? code = null)
         {
             var stringBuilder = new StringBuilder();
             if (request.DebugMode != NetworkDebugMode.Off)
-                stringBuilder.Append(APILogKeyword.Mock);
+                stringBuilder.Append(GetMockKeyword(LogOption));
 
             if (IsUsePrettyFormat)
                 stringBuilder.Append("<b>[");
@@ -121,22 +129,19 @@ namespace PhEngine.Network
             
             return result.fullJson == null ? "null" : result.fullJson.Print(IsUsePrettyFormat);
         }
-    }
-    
-    public static class APILogKeyword
-    {
-        public static string ServerFail => APILogger.IsUsePrettyFormat ? "<color=red><b>SERVER FAIL</b></color>" : "SERVER FAIL";
-        public static string Success => APILogger.IsUsePrettyFormat ? "<color=green><b>SUCCESS</b></color>" : "SUCCESS";
-        public static string Mock => APILogger.IsUsePrettyFormat ? "<color=yellow><b>MOCK </b></color>" : "MOCK ";
+        
+        public static string GetServerFailKeyword(APILogOption option) => option == APILogOption.Pretty ? "<color=red><b>SERVER FAIL</b></color>" : "SERVER FAIL";
+        public static string GetSuccessKeyword(APILogOption option) => option == APILogOption.Pretty ? "<color=green><b>SUCCESS</b></color>" : "SUCCESS";
+        public static string GetMockKeyword(APILogOption option) => option == APILogOption.Pretty ? "<color=yellow><b>MOCK </b></color>" : "MOCK ";
 
-        public static string ConnectionFail(HttpStatusCode status)
+        public static string GetConnectionFailKeyword(HttpStatusCode status, APILogOption option)
         {
-            if (APILogger.IsUsePrettyFormat)
-                    return $"<color=red><b>{status.ToString().ToUpper()}</b></color>";
+            if ( option == APILogOption.Pretty)
+                return $"<color=red><b>{status.ToString()}</b></color>";
             
-            return status.ToString().ToUpper();
+            return status.ToString();
         }
         
-        public static string Start => APILogger.IsUsePrettyFormat ? "<b>START...</b>" : "START...";
+        public static string GetStartKeyword(APILogOption option) => option == APILogOption.Pretty ? "<b>START...</b>" : "START...";
     }
 }

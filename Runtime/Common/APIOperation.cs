@@ -14,10 +14,12 @@ namespace PhEngine.Network
     {
         ClientRequest ClientRequest { get; set; }
         ServerResult Result { get; set; }
-        
-        bool isShowingLog;
+
+        APILogOption logOption;
         APILogger logger;
         ServerResultRule serverResultRule;
+
+        bool IsShowingLog => logOption != APILogOption.None;
 
         public APIOperation(WebRequestForm form, object data)
         {
@@ -44,9 +46,9 @@ namespace PhEngine.Network
             var builder = APICaller.Instance.GetBuilder();
             if (builder.Config.isForceUseNetworkDebugMode)
                 SetDebugMode(builder.Config.networkDebugMode);
-           
-            isShowingLog = builder.Config.isShowingLog;
-            serverResultRule = builder.NetworkRuleConfig.serverResultRule;
+
+            logOption = builder.Config.logOption;
+            serverResultRule = builder.Config.serverResultRule;
             return WebRequestFactory.Create(builder, ClientRequest);
         }
 
@@ -68,10 +70,10 @@ namespace PhEngine.Network
                 NetworkEvent.InvokeOnShowLoading(ClientRequest);
             
             NetworkEvent.InvokeOnAnyRequestSend(ClientRequest);
-            if (!isShowingLog)
+            if (!IsShowingLog)
                 return;
             
-            logger = new APILogger(ClientRequest, WebRequest);
+            logger = new APILogger(ClientRequest, WebRequest, logOption);
             logger.LogStartRequest();
         }
 
@@ -91,7 +93,7 @@ namespace PhEngine.Network
         
         void LogSuccess(ServerResult result)
         {
-            if (isShowingLog)
+            if (IsShowingLog)
                 logger.LogSuccess(result);
 
             NetworkEvent.InvokeOnAnyServerSuccess(result);
@@ -107,7 +109,7 @@ namespace PhEngine.Network
         
         void NotifyConnectionFail(ServerResult result)
         {
-            if (isShowingLog)
+            if (IsShowingLog)
                 logger.LogConnectionFail(result);
 
             if (ClientRequest.IsShowConnectionFailError)
@@ -118,7 +120,7 @@ namespace PhEngine.Network
 
         void NotifyServerReturnFail(ServerResult result)
         {
-            if (isShowingLog)
+            if (IsShowingLog)
                 logger.LogServerFail(result);
             
             if (ClientRequest.IsShowServerFailError)

@@ -20,7 +20,6 @@ namespace PhEngine.Network
 
         [Header("Configs")] 
         [SerializeField] APICallConfig config;
-        [SerializeField] NetworkRuleConfig networkRule;
 
         #region Initialization
         
@@ -44,17 +43,24 @@ namespace PhEngine.Network
 
         public WebRequestBuilder GetBuilder()
         {
-            if (config == null || networkRule == null)
+            if (config == null)
             {
                 Debug.LogError("Cannot Prepare API Operation. APICallerConfig or NetworkRuleConfig is missing.");
                 return null;
             }
             
             var finalAccessToken = GetFinalAccessToken();
-            return new WebRequestBuilder(config, networkRule, requestHeaderModifications, finalAccessToken);
+            return new WebRequestBuilder(config, requestHeaderModifications, finalAccessToken);
             string GetFinalAccessToken()
             {
-                return Application.isEditor && config.isUseEditorAccessToken ? config.editorAccessToken : accessToken;
+#if UNITY_EDITOR
+                if (Application.isEditor && config.isUseEditorAccessToken)
+                {
+                    return config.editorAccessToken;
+                }
+#endif
+                
+                return accessToken;
             }
         }
         

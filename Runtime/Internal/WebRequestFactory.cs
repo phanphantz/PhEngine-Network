@@ -13,7 +13,7 @@ namespace PhEngine.Network
             var fullURL = GetFullURL(clientRequest, builder.Config.url);
             var webRequest = new UnityWebRequest(fullURL, clientRequest.Verb.ToString());
             AddContent(clientRequest, webRequest);
-            AddRequestHeaders(webRequest, builder.NetworkRuleConfig.clientRequestRule, builder.HeaderSettings, builder.AccessToken);
+            AddRequestHeaders(webRequest, builder.Config.clientRequestRule, builder.HeaderSettings, builder.AccessToken);
             webRequest.downloadHandler = new DownloadHandlerBuffer();
             webRequest.timeout = builder.Config.timeoutInSeconds;
             return webRequest;
