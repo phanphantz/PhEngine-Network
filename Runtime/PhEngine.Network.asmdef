@@ -4,7 +4,8 @@
     "references": [
         "PhEngine.Core",
         "PhEngine.Core.Operation",
-        "PhEngine.Core.JSON"
+        "PhEngine.Core.JSON",
+        "UniTask"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

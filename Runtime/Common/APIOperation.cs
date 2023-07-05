@@ -8,6 +8,10 @@ using PhEngine.Core.Operation;
 using UnityEngine;
 using UnityEngine.Networking;
 
+#if UNITASK
+using Cysharp.Threading.Tasks;
+#endif
+
 namespace PhEngine.Network
 {
     public class APIOperation : NetworkOperation<ServerResult>
@@ -295,5 +299,61 @@ namespace PhEngine.Network
         {
             serverResultRule = rule;
         }
+        
+#if UNITASK
+        public async UniTask<JSONObject> JsonTask()
+        {
+            await Task();
+            return Result.dataJson;
+        }
+        
+        public async UniTask<T> Task<T>()
+        {
+            await Task();
+            if (TryGetResult<T>(out var resultObj))
+                return resultObj;
+
+            return default;
+        }
+        
+        public async UniTask<List<T>> ListTask<T>()
+        {
+            await Task();
+            if (TryGetResultList<T>(out var resultObj))
+                return resultObj;
+
+            return default;
+        }
+        
+        public async UniTask<string> RawStringTask()
+        {
+            await Task();
+            return Result.dataJson.ToString();
+        }
+        
+        public async UniTask<string> StringFieldTask(string fieldName)
+        {
+            await Task();
+            return Result.dataJson.SafeString(fieldName);
+        }
+        
+        public async UniTask<int> IntFieldTask(string fieldName)
+        {
+            await Task();
+            return Result.dataJson.SafeInt(fieldName);
+        }
+        
+        public async UniTask<float> FloatFieldTask(string fieldName)
+        {
+            await Task();
+            return Result.dataJson.SafeFloat(fieldName);
+        }
+        
+        public async UniTask<bool> BoolFieldTask(string fieldName)
+        {
+            await Task();
+            return Result.dataJson.SafeBool(fieldName);
+        }
+#endif
     }
 }
