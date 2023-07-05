@@ -39,20 +39,15 @@ namespace PhEngine.Network
         {
             var retryFlow = new Flow();
             if (flow != null)
-            {
                 retryFlow = flow;
-                retryFlow.Recycle(startOperation);
-            }
             else
-            {
                 retryFlow.Add(startOperation);
-            }
 
             var refreshTokenCall = CreateRefreshAccessTokenCall();
             if (refreshTokenCall != null)
             {
-                retryFlow.Insert(0, refreshTokenCall);
-                retryFlow.OnCompleteAll += () => retryFlow.Remove(refreshTokenCall);
+                var index = Array.IndexOf(retryFlow.Operations,startOperation);
+                retryFlow.InsertOneShot(index, refreshTokenCall);
             }
             
             retryFlow.RunAsSeries(); 
