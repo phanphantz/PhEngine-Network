@@ -2,36 +2,79 @@
 using PhEngine.Core.Operation;
 using UnityEngine;
 
+#if UNITASK
+using Cysharp.Threading.Tasks;
+#endif
+
 namespace PhEngine.Network
 {
     public abstract class AccessTokenValidator : ScriptableObject
     {
         [SerializeField] DateTimeFormat timeFormat;
         [SerializeField] bool isCheckBeforeCall = true;
-        [SerializeField] bool isCheckAfterFail = true;
+        [SerializeField] bool isCheckAfterCall = true;
+
+        Operation currentRefreshOperation;
         
-        public void Track(APIOperation apiOp)
+        public void BindValidateActions(APIOperation apiOp)
         {
+            //Don't interact with the refresh API operation itself!
+            if (apiOp == currentRefreshOperation)
+                return;
+            
             var parentFlow = apiOp.ParentFlow;
             if (isCheckBeforeCall)
                 apiOp.AbortOn(() => TryHandleOnClientExpired(apiOp, parentFlow), "Client's Access Token is expired. Fixing...", FailureHandling.None, -1);
 
-            if (isCheckAfterFail)
-                apiOp.OnFail += result => TryHandleOnServerExpired(apiOp, parentFlow, result);
+            if (isCheckAfterCall)
+                apiOp.OnReceiveResponse += () => TryHandleOnServerExpired(apiOp, parentFlow);
         }
+        
+#if UNITASK
+        public async UniTask ValidateBeforeCallTask(APIOperation apiOp)
+        {
+            if (!isCheckBeforeCall)
+                return;
+            
+            //Don't interact with the refresh API operation itself!
+            if (apiOp == currentRefreshOperation)
+                return;
+            
+            if (!IsExpiredBeforeCall())
+                return;
+            
+            await CreateRefreshAccessTokenCall().Task();
+        }
+
+        public async UniTask ValidateAfterCallTask(APIOperation apiOp, ServerResult result)
+        {
+            if (!isCheckAfterCall)
+                return;
+            
+            //Don't interact with the refresh API operation itself!
+            if (apiOp == currentRefreshOperation)
+                return;
+
+            if (!IsExpiredAfterCall(result))
+                return;
+
+            await CreateRefreshAccessTokenCall().Task();
+            await apiOp.Task();
+        }
+#endif
 
         bool TryHandleOnClientExpired(APIOperation startOperation, Flow flow)
         {
-            var currentTime = timeFormat == DateTimeFormat.Local ? DateTime.Now : DateTime.UtcNow;
-            var isExpired = IsExpiredBeforeCall(currentTime);
+            var isExpired = IsExpiredBeforeCall();
             if (isExpired)
                 Rerun(startOperation, flow);
 
             return isExpired;
         }
 
-        protected virtual bool IsExpiredBeforeCall(DateTime currentTime)
+        protected virtual bool IsExpiredBeforeCall()
         {
+            var currentTime = timeFormat == DateTimeFormat.Local ? DateTime.Now : DateTime.UtcNow;
             return APICaller.Instance.IsAccessTokenExpired(currentTime);
         }
 
@@ -43,19 +86,19 @@ namespace PhEngine.Network
             else
                 retryFlow.Add(startOperation);
 
-            var refreshTokenCall = CreateRefreshAccessTokenCall();
-            if (refreshTokenCall != null)
+            currentRefreshOperation = CreateRefreshAccessTokenCall();
+            if (currentRefreshOperation != null)
             {
                 var index = Array.IndexOf(retryFlow.Operations,startOperation);
-                retryFlow.InsertOneShot(index, refreshTokenCall);
+                retryFlow.InsertOneShot(index, currentRefreshOperation);
             }
             
             retryFlow.RunAsSeries(); 
         }
 
-        void TryHandleOnServerExpired(APIOperation startOperation, Flow flow, ServerResult result)
+        void TryHandleOnServerExpired(APIOperation startOperation, Flow flow)
         {
-            if (!IsExpiredAfterCall(result))
+            if (!IsExpiredAfterCall(startOperation.Result))
                 return;
             
             Rerun(startOperation, flow);

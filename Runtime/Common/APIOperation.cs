@@ -50,23 +50,47 @@ namespace PhEngine.Network
 
         public override void RunOn(MonoBehaviour target)
         {
+            if (!RetrieveCaller(out var caller)) 
+                return;
+
+            if (caller.AccessTokenValidator)
+                caller.AccessTokenValidator.BindValidateActions(this);
+            
+            base.RunOn(target);
+        }
+
+#if UNITASK
+        protected override async UniTask PreProcessTask()
+        {
             var caller = APICaller.Instance;
+            if (caller.AccessTokenValidator)
+                await caller.AccessTokenValidator.ValidateBeforeCallTask(this);
+        }
+        
+        protected override async UniTask PostProcessTask()
+        {
+            var caller = APICaller.Instance;
+            if (caller.AccessTokenValidator)
+                await caller.AccessTokenValidator.ValidateAfterCallTask(this,Result);
+        }
+#endif
+
+        static bool RetrieveCaller(out APICaller caller)
+        {
+            caller = APICaller.Instance;
             if (caller == null)
             {
                 Debug.LogError("APICaller is missing. APIOperation is aborted.");
-                return;
+                return false;
             }
 
             if (caller.Config == null)
             {
                 Debug.LogError("Cannot Prepare API Operation. APICallConfig is missing.");
-                return;
+                return false;
             }
-            
-            if (caller.AccessTokenValidator)
-                caller.AccessTokenValidator.Track(this);
-            
-            base.RunOn(target);
+
+            return true;
         }
 
         void HandleOnSend()

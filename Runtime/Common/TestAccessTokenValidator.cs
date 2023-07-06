@@ -15,7 +15,7 @@ namespace PhEngine.Network
             return isExpiredAfterCall;
         }
 
-        protected override bool IsExpiredBeforeCall(DateTime currentTime)
+        protected override bool IsExpiredBeforeCall()
         {
             return isExpiredBeforeCall;
         }
