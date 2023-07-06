@@ -62,6 +62,7 @@ namespace PhEngine.Network
 #if UNITASK
         protected override async UniTask PreProcessTask()
         {
+            await base.PreProcessTask();
             var caller = APICaller.Instance;
             if (caller.AccessTokenValidator)
                 await caller.AccessTokenValidator.ValidateBeforeCallTask(this);
@@ -69,6 +70,7 @@ namespace PhEngine.Network
         
         protected override async UniTask PostProcessTask()
         {
+            await base.PostProcessTask();
             var caller = APICaller.Instance;
             if (caller.AccessTokenValidator)
                 await caller.AccessTokenValidator.ValidateAfterCallTask(this,Result);
@@ -235,10 +237,7 @@ namespace PhEngine.Network
         {
             result = null;
             if (Result == null)
-            {
-                Debug.LogError("Result is null.");
                 return false;
-            }
 
             result = Result;
             return true;
@@ -269,10 +268,7 @@ namespace PhEngine.Network
                 return false;
 
             if (result.dataJson == null)
-            {
-                Debug.LogError("dataJson is null.");
                 return false;
-            }
 
             json =  result.dataJson;
             return true;
@@ -327,7 +323,7 @@ namespace PhEngine.Network
         {
             await Task();
             if (!TryGetJson(out var json))
-                return new JSONObject();
+                throw new OperationCanceledException();
 
             return json;
         }
@@ -338,7 +334,7 @@ namespace PhEngine.Network
             if (TryGetResult<T>(out var resultObj))
                 return resultObj;
 
-            return default;
+            throw new OperationCanceledException();
         }
         
         public async UniTask<List<T>> ListTask<T>()
@@ -347,14 +343,14 @@ namespace PhEngine.Network
             if (TryGetResultList<T>(out var resultObj))
                 return resultObj;
 
-            return default;
+            throw new OperationCanceledException();
         }
         
         public async UniTask<string> RawStringTask()
         {
             await Task();
             if (!TryGetJson(out var json))
-                return string.Empty;
+                throw new OperationCanceledException();
             
             return json.ToString();
         }
@@ -363,7 +359,7 @@ namespace PhEngine.Network
         {
             await Task();
             if (!TryGetJson(out var json))
-                return string.Empty;
+                throw new OperationCanceledException();
             
             return json.SafeString(fieldName);
         }
@@ -372,7 +368,7 @@ namespace PhEngine.Network
         {
             await Task();
             if (!TryGetJson(out var json))
-                return 0;
+                throw new OperationCanceledException();
             
             return json.SafeInt(fieldName);
         }
@@ -381,7 +377,7 @@ namespace PhEngine.Network
         {
             await Task();
             if (!TryGetJson(out var json))
-                return 0;
+                throw new OperationCanceledException();
             
             return json.SafeFloat(fieldName);
         }
@@ -390,7 +386,7 @@ namespace PhEngine.Network
         {
             await Task();
             if (!TryGetJson(out var json))
-                return false;
+                throw new OperationCanceledException();
             
             return json.SafeBool(fieldName);
         }
