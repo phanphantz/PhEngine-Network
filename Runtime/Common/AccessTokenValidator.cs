@@ -46,20 +46,21 @@ namespace PhEngine.Network
             await CreateRefreshAccessTokenCall().Task();
         }
 
-        public async UniTask ValidateAfterCallTask(APIOperation apiOp, ServerResult result)
+        public async UniTask<bool> TryValidateAfterCallTask(APIOperation apiOp, ServerResult result)
         {
             if (!isCheckAfterCall)
-                return;
+                return false;
             
             //Don't interact with the refresh API operation itself!
             if (apiOp == currentRefreshOperation)
-                return;
+                return false;
 
             if (!IsExpiredAfterCall(result))
-                return;
+                return false;
 
             await CreateRefreshAccessTokenCall().Task();
             await apiOp.Task();
+            return true;
         }
 #endif
 

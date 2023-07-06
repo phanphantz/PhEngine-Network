@@ -70,10 +70,16 @@ namespace PhEngine.Network
         
         protected override async UniTask PostProcessTask()
         {
-            await base.PostProcessTask();
             var caller = APICaller.Instance;
+            var isAccessTokenRefreshed = false;
             if (caller.AccessTokenValidator)
-                await caller.AccessTokenValidator.ValidateAfterCallTask(this,Result);
+                isAccessTokenRefreshed = await caller.AccessTokenValidator.TryValidateAfterCallTask(this,Result);
+
+            //If Access Token is handled, no need to terminate pending tasks
+            if (isAccessTokenRefreshed)
+                return;
+            
+            await base.PostProcessTask();
         }
 #endif
 
