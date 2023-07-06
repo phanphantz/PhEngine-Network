@@ -80,20 +80,26 @@ namespace PhEngine.Network
 
         void Rerun(APIOperation startOperation, Flow flow = null)
         {
-            var retryFlow = new Flow();
-            if (flow != null)
-                retryFlow = flow;
-            else
-                retryFlow.Add(startOperation);
-
-            currentRefreshOperation = CreateRefreshAccessTokenCall();
-            if (currentRefreshOperation != null)
+            if (flow != null && flow.RunningOperation is ChainedOperation)
             {
-                var index = Array.IndexOf(retryFlow.Operations,startOperation);
-                retryFlow.InsertOneShot(index, currentRefreshOperation);
+                currentRefreshOperation = CreateRefreshAccessTokenCall();
+                if (currentRefreshOperation != null)
+                {
+                    var index = Array.IndexOf(flow.Operations, startOperation);
+                    flow.InsertOneShot(index, currentRefreshOperation);
+                    flow.RunAsSeries(OnStopBehavior.CancelAll, index);
+                }
             }
-            
-            retryFlow.RunAsSeries(); 
+            else
+            {
+                var retryFlow = new Flow();
+                currentRefreshOperation = CreateRefreshAccessTokenCall();
+                if (currentRefreshOperation != null)
+                    retryFlow.Add(currentRefreshOperation);
+                
+                retryFlow.Add(startOperation);
+                retryFlow.RunAsSeries();
+            }
         }
 
         void TryHandleOnServerExpired(APIOperation startOperation, Flow flow)

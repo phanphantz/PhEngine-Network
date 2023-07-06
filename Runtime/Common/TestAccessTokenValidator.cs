@@ -23,7 +23,7 @@ namespace PhEngine.Network
         protected override Operation CreateRefreshAccessTokenCall()
         {
             return Operation.Create()
-                .DoFor(TimeSpan.FromSeconds(mockResolveTime), true)
+                .SetDuration(TimeSpan.FromSeconds(mockResolveTime), true)
                 .SetOnStart(()=> Debug.Log("Faking Refresh AccessToken API..."))
                 .SetOnFinish(()=>
                 {
