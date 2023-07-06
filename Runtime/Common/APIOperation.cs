@@ -23,10 +23,23 @@ namespace PhEngine.Network
 
         bool IsShowingLog => logOption != APILogOption.None;
 
+        #region Constructors
+        
+        public APIOperation(WebRequestFormConfig config, object data)
+        {
+            var jsonString = JsonConvert.SerializeObject(data);
+            Initialize(config.Form, new JSONObject(jsonString));
+        }
+
         public APIOperation(WebRequestForm form, object data)
         {
             var jsonString = JsonConvert.SerializeObject(data);
             Initialize(form, new JSONObject(jsonString));
+        }
+        
+        public APIOperation(WebRequestFormConfig config, JSONObject json = null)
+        {
+            Initialize(config.Form, json);
         }
 
         public APIOperation(WebRequestForm form, JSONObject json = null)
@@ -42,12 +55,9 @@ namespace PhEngine.Network
             OnSuccess += LogSuccess;
             OnFail += HandleOnFail;
         }
-
-        protected override UnityWebRequest CreateWebRequest()
-        {
-            return APICaller.Instance.CreateWebRequest(this);
-        }
-
+        
+        #endregion
+        
         public override void RunOn(MonoBehaviour target)
         {
             if (!RetrieveCaller(out var caller)) 
@@ -57,6 +67,11 @@ namespace PhEngine.Network
                 caller.AccessTokenValidator.BindValidateActions(this);
             
             base.RunOn(target);
+        }
+
+        protected override UnityWebRequest CreateWebRequest()
+        {
+            return APICaller.Instance.CreateWebRequest(this);
         }
 
 #if UNITASK
@@ -197,6 +212,8 @@ namespace PhEngine.Network
             return result;
         }
 
+        #region Public Set Methods
+
         public void SetMockedResponse(JSONObject value)
         {
             if (value == null)
@@ -239,6 +256,10 @@ namespace PhEngine.Network
             }
         }
 
+        #endregion
+
+        #region Public Result Getters
+        
         public bool TryGetServerResult(out ServerResult result)
         {
             result = null;
@@ -299,7 +320,9 @@ namespace PhEngine.Network
 
             return true;
         }
-
+        
+        #endregion
+        
         public void AbortOn(Func<bool> condition, string error = "", FailureHandling failureHandling = FailureHandling.None, int errorCode = 0)
         {
             GuardCondition += () =>
@@ -325,72 +348,101 @@ namespace PhEngine.Network
         }
         
 #if UNITASK
-        public async UniTask<JSONObject> JsonTask()
+        public async UniTask<JSONObject> JsonTask(JSONObject mockData = null)
         {
             await Task();
+            if (IsMockedResult())
+                return mockData;
+            
             if (!TryGetJson(out var json))
                 throw new OperationCanceledException();
 
             return json;
         }
-        
-        public async UniTask<T> Task<T>()
+
+        bool IsMockedResult()
+        {
+            return Result != null && Result.isMocked;
+        }
+
+        public async UniTask<T> Task<T>(T mockData = default)
         {
             await Task();
+            if (IsMockedResult())
+                return mockData;
+            
             if (TryGetResult<T>(out var resultObj))
                 return resultObj;
 
             throw new OperationCanceledException();
         }
         
-        public async UniTask<List<T>> ListTask<T>()
+        public async UniTask<List<T>> ListTask<T>(List<T> mockDataList = null)
         {
             await Task();
+            if (IsMockedResult())
+                return mockDataList;
+            
             if (TryGetResultList<T>(out var resultObj))
                 return resultObj;
 
             throw new OperationCanceledException();
         }
         
-        public async UniTask<string> RawStringTask()
+        public async UniTask<string> RawStringTask(string mockData = null)
         {
             await Task();
+            if (IsMockedResult())
+                return mockData;
+            
             if (!TryGetJson(out var json))
                 throw new OperationCanceledException();
             
             return json.ToString();
         }
         
-        public async UniTask<string> StringFieldTask(string fieldName)
+        public async UniTask<string> StringFieldTask(string fieldName, string mockData = null)
         {
             await Task();
+            if (IsMockedResult())
+                return mockData;
+            
             if (!TryGetJson(out var json))
                 throw new OperationCanceledException();
             
             return json.SafeString(fieldName);
         }
         
-        public async UniTask<int> IntFieldTask(string fieldName)
+        public async UniTask<int> IntFieldTask(string fieldName, int mockData = 0)
         {
             await Task();
+            if (IsMockedResult())
+                return mockData;
+            
             if (!TryGetJson(out var json))
                 throw new OperationCanceledException();
             
             return json.SafeInt(fieldName);
         }
         
-        public async UniTask<float> FloatFieldTask(string fieldName)
+        public async UniTask<float> FloatFieldTask(string fieldName, float mockData = 0)
         {
             await Task();
+            if (IsMockedResult())
+                return mockData;
+            
             if (!TryGetJson(out var json))
                 throw new OperationCanceledException();
             
             return json.SafeFloat(fieldName);
         }
         
-        public async UniTask<bool> BoolFieldTask(string fieldName)
+        public async UniTask<bool> BoolFieldTask(string fieldName, bool mockData = false)
         {
             await Task();
+            if (IsMockedResult())
+                return mockData;
+            
             if (!TryGetJson(out var json))
                 throw new OperationCanceledException();
             

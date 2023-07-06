@@ -9,7 +9,7 @@ namespace PhEngine.Network
     [Serializable]
     public abstract class API
     {
-        public WebRequestForm Form => form;
+        public WebRequestForm Form => new WebRequestForm(form);
         [SerializeField] protected WebRequestForm form;
         
         public APIOperation CreateOperation(NetworkDebugMode debugMode)

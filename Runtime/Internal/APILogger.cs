@@ -136,10 +136,14 @@ namespace PhEngine.Network
 
         public static string GetConnectionFailKeyword(HttpStatusCode status, APILogOption option)
         {
-            if ( option == APILogOption.Pretty)
-                return $"<color=red><b>{status.ToString()}</b></color>";
+            var errorName = status.ToString();
+            if ((int) status == 0)
+                errorName = "UnknownError";
             
-            return status.ToString();
+            if ( option == APILogOption.Pretty)
+                return $"<color=red><b>{errorName}</b></color>";
+            
+            return errorName;
         }
         public static string GetStartKeyword(APILogOption option) => option == APILogOption.Pretty ? "<b>START...</b>" : "START...";
     }
