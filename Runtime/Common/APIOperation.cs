@@ -17,7 +17,6 @@ namespace PhEngine.Network
     public class APIOperation : NetworkOperation<ServerResult>
     {
         internal ClientRequest ClientRequest { get; private set; }
-        ServerResult Result { get; set; }
         APILogOption logOption;
         APILogger logger;
         ServerResultRule serverResultRule;
@@ -161,9 +160,9 @@ namespace PhEngine.Network
         protected override ServerResult CreateResultFromWebRequest(UnityWebRequest request)
         {
             var elapsedTimeSeconds = (float)ElapsedRealTime.TotalSeconds;
-            Result = new ServerResult(WebRequest, serverResultRule, ClientRequest, elapsedTimeSeconds);
-            NetworkEvent.InvokeOnAnyResultReceived(Result);
-            return Result;
+            var result = new ServerResult(WebRequest, serverResultRule, ClientRequest, elapsedTimeSeconds);
+            NetworkEvent.InvokeOnAnyResultReceived(result);
+            return result;
         }
 
         public void SetMockedResponse(JSONObject value)
@@ -213,7 +212,7 @@ namespace PhEngine.Network
             result = null;
             if (Result == null)
             {
-                Debug.LogError("TryGetServerResult<T> failed. Result is null.");
+                Debug.LogError("Result is null.");
                 return false;
             }
 
@@ -224,21 +223,12 @@ namespace PhEngine.Network
         public bool TryGetResult<T>(out T resultObj)
         {
             resultObj = default;
-            if (Result == null)
-            {
-                Debug.LogError("TryGetResult<T> failed. Server Result is null");
+            if (!TryGetJson(out var json)) 
                 return false;
-            }
 
-            if (Result.dataJson == null)
-            {
-                Debug.LogError("TryGetResult<T> failed. dataJson is null.");
-                return false;
-            }
-            
             try
             {
-                resultObj = JsonConvert.DeserializeObject<T>(Result.dataJson.ToString());
+                resultObj = JsonConvert.DeserializeObject<T>(json.ToString());
             }
             catch (Exception e)
             {
@@ -248,24 +238,32 @@ namespace PhEngine.Network
             return true;
         }
 
-        public bool TryGetResultList<T>(out List<T> resultObjList)
+        bool TryGetJson(out JSONObject json)
         {
-            resultObjList = default;
-            if (Result == null)
+            json = null;
+            if (!TryGetServerResult(out var result))
+                return false;
+
+            if (result.dataJson == null)
             {
-                Debug.LogError("TryGetResultList<T> failed. Server Result is null");
+                Debug.LogError("dataJson is null.");
                 return false;
             }
 
-            if (Result.dataJson == null)
-            {
-                Debug.LogError("TryGetResultList<T> failed. dataJson is null");
+            json =  result.dataJson;
+            return true;
+        }
+
+        public bool TryGetResultList<T>(out List<T> resultObjList)
+        {
+            resultObjList = default;
+            if (!TryGetJson(out var json)) 
                 return false;
-            }
             
             try
             {
-                resultObjList = JsonConvert.DeserializeObject<List<T>>(Result.dataJson.ToString()).ToList();
+                var enumerator = JsonConvert.DeserializeObject<List<T>>(json.ToString());
+                resultObjList = enumerator?.ToList();
             }
             catch (Exception e)
             {
@@ -282,7 +280,7 @@ namespace PhEngine.Network
             {
                 var result = condition.Invoke();
                 if (result)
-                    Result = ServerResult.CreateClientFailResult(error, failureHandling, errorCode);
+                    SetResult(ServerResult.CreateClientFailResult(error, failureHandling, errorCode));
 
                 return result;
             };
@@ -304,7 +302,10 @@ namespace PhEngine.Network
         public async UniTask<JSONObject> JsonTask()
         {
             await Task();
-            return Result.dataJson;
+            if (!TryGetJson(out var json))
+                return new JSONObject();
+
+            return json;
         }
         
         public async UniTask<T> Task<T>()
@@ -328,31 +329,46 @@ namespace PhEngine.Network
         public async UniTask<string> RawStringTask()
         {
             await Task();
-            return Result.dataJson.ToString();
+            if (!TryGetJson(out var json))
+                return string.Empty;
+            
+            return json.ToString();
         }
         
         public async UniTask<string> StringFieldTask(string fieldName)
         {
             await Task();
-            return Result.dataJson.SafeString(fieldName);
+            if (!TryGetJson(out var json))
+                return string.Empty;
+            
+            return json.SafeString(fieldName);
         }
         
         public async UniTask<int> IntFieldTask(string fieldName)
         {
             await Task();
-            return Result.dataJson.SafeInt(fieldName);
+            if (!TryGetJson(out var json))
+                return 0;
+            
+            return json.SafeInt(fieldName);
         }
         
         public async UniTask<float> FloatFieldTask(string fieldName)
         {
             await Task();
-            return Result.dataJson.SafeFloat(fieldName);
+            if (!TryGetJson(out var json))
+                return 0;
+            
+            return json.SafeFloat(fieldName);
         }
         
         public async UniTask<bool> BoolFieldTask(string fieldName)
         {
             await Task();
-            return Result.dataJson.SafeBool(fieldName);
+            if (!TryGetJson(out var json))
+                return false;
+            
+            return json.SafeBool(fieldName);
         }
 #endif
     }
