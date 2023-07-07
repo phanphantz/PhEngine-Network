@@ -50,6 +50,9 @@ namespace PhEngine.Network
 
         public string[] GetEnvironmentOptions()
         {
+            if (backendSettings == null)
+                return new string[] {};
+
             return backendSettings
                 .Select(setting => setting.name)
                 .Where(value => !string.IsNullOrEmpty(value))
