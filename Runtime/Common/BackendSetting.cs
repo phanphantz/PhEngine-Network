@@ -1,10 +1,12 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace PhEngine.Network
 {
-    [CreateAssetMenu(menuName = "PhEngine/Network/BackendConfig", fileName = "BackendConfig", order = 0)]
-    public class BackendConfig : ScriptableObject
+    [Serializable]
+    public class BackendSetting
     {
+        public string name;
         public string baseUrl;
         
 #if UNITY_EDITOR

@@ -6,12 +6,21 @@ namespace PhEngine.Network
     public class APICallConfig : ScriptableObject
     {
         [Header("Connection")] 
-        public BackendConfig backend;
+        public BackendSetting[] backendSettings;
         public int timeoutInSeconds = 10;
+        [HideInInspector][SerializeField] int selectedBackendIndex;
+
+        public BackendSetting GetBackendSetting()
+        {
+            if (selectedBackendIndex < 0 || selectedBackendIndex >= backendSettings.Length)
+                    return null;
+
+            return backendSettings[selectedBackendIndex];
+        }
         
         [Header("Debugging")]
-        public bool isForceUseNetworkDebugMode;
-        public NetworkDebugMode networkDebugMode;
+        public bool isForceUseTestMode;
+        public TestMode testMode;
         public APILogOption logOption = APILogOption.Pretty;
         
         [Header("Format Settings")]

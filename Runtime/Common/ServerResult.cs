@@ -2,9 +2,7 @@ using System;
 using System.Net;
 using System.Linq;
 using PhEngine.Core.JSON;
-using UnityEngine;
 using UnityEngine.Networking;
-using UnityEngine.Serialization;
 
 namespace PhEngine.Network
 {
@@ -36,10 +34,10 @@ namespace PhEngine.Network
         {
             this.elapsedTimeSeconds = elapsedTimeSeconds;
             failureHandling = clientRequest.FailureHandling;
-            if (clientRequest.DebugMode != NetworkDebugMode.Off)
+            if (clientRequest.TestMode != TestMode.Off)
             {
                 isMocked = true;
-                MockStatus(clientRequest.DebugMode);
+                MockStatus(clientRequest.TestMode);
                 dataJson = new JSONObject(clientRequest.MockedResponse);
                 return;
             }
@@ -82,10 +80,7 @@ namespace PhEngine.Network
                 
                 var successCodeRanges = resultRule.successStatusCodeRanges;
                 if (successCodeRanges == null || successCodeRanges.Length == 0)
-                {
-                    Debug.LogWarning("There is no provided success code ranges to determine ServerResultStatus. So all result will be marked as Success.");
                     return ServerResultStatus.ServerReturnSuccess;
-                }
 
                 if (StatusCodeRange.IsBetweenRange(code, successCodeRanges))
                     return ServerResultStatus.ServerReturnSuccess;
@@ -94,14 +89,14 @@ namespace PhEngine.Network
             }
         }
 
-        void MockStatus(NetworkDebugMode debugMode)
+        void MockStatus(TestMode testMode)
         {
-            status = debugMode switch
+            status = testMode switch
             {
-                NetworkDebugMode.MockConnectionFail => ServerResultStatus.ConnectionFail,
-                NetworkDebugMode.MockServerReturnFail => ServerResultStatus.ServerReturnFail,
-                NetworkDebugMode.MockServerReturnSuccess => ServerResultStatus.ServerReturnSuccess,
-                NetworkDebugMode.Off => ServerResultStatus.ServerReturnSuccess,
+                TestMode.MockConnectionFail => ServerResultStatus.ConnectionFail,
+                TestMode.MockServerReturnFail => ServerResultStatus.ServerReturnFail,
+                TestMode.MockServerReturnSuccess => ServerResultStatus.ServerReturnSuccess,
+                TestMode.Off => ServerResultStatus.ServerReturnSuccess,
                 _ => throw new ArgumentOutOfRangeException()
             };
         }

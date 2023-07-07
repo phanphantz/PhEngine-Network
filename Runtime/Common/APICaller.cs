@@ -47,8 +47,8 @@ namespace PhEngine.Network
         
         internal UnityWebRequest CreateWebRequest(APIOperation operation)
         {
-            if (config.isForceUseNetworkDebugMode)
-                operation.SetDebugMode(config.networkDebugMode);
+            if (config.isForceUseTestMode)
+                operation.SetDebugMode(config.testMode);
 
             operation.SetLogOption(config.logOption);
             operation.SetServerResultRule(config.serverResultRule);
@@ -59,8 +59,9 @@ namespace PhEngine.Network
             string GetFinalAccessToken()
             {
 #if UNITY_EDITOR
-                if (Application.isEditor && config.backend && config.backend.isUseEditorAccessToken)
-                    return config.backend.editorAccessToken;
+                var backendSetting = config.GetBackendSetting();
+                if (Application.isEditor && backendSetting != null && backendSetting.isUseEditorAccessToken)
+                    return backendSetting.editorAccessToken;
 #endif
                 return accessToken;
             }

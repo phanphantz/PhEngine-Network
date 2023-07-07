@@ -12,10 +12,10 @@ namespace PhEngine.Network
         public WebRequestForm Form => new WebRequestForm(form);
         [SerializeField] protected WebRequestForm form;
         
-        public APIOperation CreateOperation(NetworkDebugMode debugMode)
+        public APIOperation CreateOperation(TestMode testMode)
         {
             var api = CreateOperation();
-            api.SetDebugMode(debugMode);
+            api.SetDebugMode(testMode);
             return api;
         }
 

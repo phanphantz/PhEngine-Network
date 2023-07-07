@@ -18,7 +18,7 @@ namespace PhEngine.Network
         public bool IsShowServerFailError => Form.setting.isShowErrorOnServerFail;
         public bool IsShowErrorOnClientFail => Form.setting.isShowErrorOnClientFail;
         public FailureHandling FailureHandling => Form.setting.failureHandling;
-        public NetworkDebugMode DebugMode => Form.setting.debugMode;
+        public TestMode TestMode => Form.setting.testMode;
         public WebRequestPathType Type => Form.type;
 
         internal ClientRequest(WebRequestForm form, JSONObject json = null)
@@ -33,9 +33,9 @@ namespace PhEngine.Network
             MockedResponse = value;
         }
 
-        internal void SetDebugMode(NetworkDebugMode mode)
+        internal void SetDebugMode(TestMode mode)
         {
-            Form.setting.debugMode = mode;
+            Form.setting.testMode = mode;
         }
 
         internal void SetContent(JSONObject json)
@@ -44,7 +44,7 @@ namespace PhEngine.Network
         }
     }
     
-    public enum NetworkDebugMode
+    public enum TestMode
     {
         Off, MockServerReturnSuccess, MockServerReturnFail, MockConnectionFail 
     }

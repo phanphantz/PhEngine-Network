@@ -139,7 +139,7 @@ namespace PhEngine.Network
             
             string GetTimeFromServerResult()
             {
-                return ClientRequest.DebugMode == NetworkDebugMode.Off? Result.dateTime : DateTime.UtcNow.ToString(CultureInfo.InvariantCulture);
+                return ClientRequest.TestMode == TestMode.Off? Result.dateTime : DateTime.UtcNow.ToString(CultureInfo.InvariantCulture);
             }
         }
         
@@ -196,7 +196,7 @@ namespace PhEngine.Network
         
         protected override float GetWebRequestProgress()
         {
-            return ClientRequest.DebugMode != NetworkDebugMode.Off ? 1f : base.GetWebRequestProgress();
+            return ClientRequest.TestMode != TestMode.Off ? 1f : base.GetWebRequestProgress();
         }
 
         protected override bool IsNetworkOperationSuccess()
@@ -227,7 +227,7 @@ namespace PhEngine.Network
             ClientRequest.SetMockedResponse(value);
         }
 
-        public void SetDebugMode(NetworkDebugMode mode)
+        public void SetDebugMode(TestMode mode)
         {
             ClientRequest.SetDebugMode(mode);
         }

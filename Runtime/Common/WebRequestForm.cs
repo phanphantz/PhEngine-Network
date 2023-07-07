@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace PhEngine.Network
 {
@@ -61,7 +62,7 @@ namespace PhEngine.Network
         public bool isShowErrorOnConnectionFail = true;
         public bool isShowErrorOnServerFail = true;
         public bool isShowErrorOnClientFail = true;
-        public NetworkDebugMode debugMode;
+        [FormerlySerializedAs("debugMode")] public TestMode testMode;
         public FailureHandling failureHandling;
     }
     

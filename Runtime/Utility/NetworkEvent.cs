@@ -109,7 +109,6 @@ namespace PhEngine.Network
         static void SetLatestServerTime(DateTime newTime)
         {
             NotifyTimeChange(newTime);
-            TryCompensateTime(newTime);
             NotifyNewDayIfNeeded(newTime);
             NotifyTimeUpdateFinished(newTime);
         }
@@ -118,14 +117,6 @@ namespace PhEngine.Network
         {
             Debug.Log($"Receive Time From Server : {newTime}");
             OnReceiveServerTime?.Invoke(newTime);
-        }
-
-        static void TryCompensateTime(DateTime newTime)
-        {
-            //TODO:
-            var requestTime = new DateTime();
-            var roundTripTime = (DateTime.Now - requestTime);
-            //CompensateTime(newTime + (roundTripTime/2f));
         }
 
         static void NotifyNewDayIfNeeded(DateTime newTime)

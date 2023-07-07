@@ -10,7 +10,7 @@ namespace PhEngine.Network
     {
         internal static UnityWebRequest Create(APICallConfig config, RequestHeaderSetting[] headerSettings, string accessToken, ClientRequest clientRequest)
         {
-            var fullURL = GetFullURL(clientRequest, config.backend);
+            var fullURL = GetFullURL(clientRequest, config.GetBackendSetting());
             var webRequest = new UnityWebRequest(fullURL, clientRequest.Verb.ToString());
             AddContent(clientRequest, webRequest);
             AddRequestHeaders(webRequest, config.clientRequestRule, headerSettings, accessToken);
@@ -19,7 +19,7 @@ namespace PhEngine.Network
             return webRequest;
         }
         
-        static string GetFullURL(ClientRequest clientRequest, BackendConfig backend)
+        static string GetFullURL(ClientRequest clientRequest, BackendSetting backend)
         {
             var fullURL = clientRequest.Destination;
             if (clientRequest.Type == WebRequestPathType.Endpoint)

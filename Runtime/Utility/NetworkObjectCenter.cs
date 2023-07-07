@@ -9,7 +9,7 @@ namespace PhEngine.Network
     public abstract class NetworkObjectCenter<T> : MonoBehaviour where T : JSONConvertibleObject
     {
         [SerializeField] protected List<T> elementList;
-        [SerializeField] WebRequestForm getRequestForm;
+        [SerializeField] WebRequestFormConfig getRequestConfig;
 
         public IReadOnlyCollection<T> ElementList => elementList.AsReadOnly();
         public event Action<IReadOnlyCollection<T>> OnElementUpdate;
@@ -24,7 +24,7 @@ namespace PhEngine.Network
         
         public APIOperation CreateGetAPI()
         {
-            return new APIOperation(getRequestForm, CreateGetRequestBody());
+            return new APIOperation(getRequestConfig, CreateGetRequestBody());
         }
         
         public abstract JSONObject CreateGetRequestBody();
