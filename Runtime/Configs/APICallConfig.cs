@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -7,42 +8,40 @@ namespace PhEngine.Network
     [CreateAssetMenu(menuName = "PhEngine/Network/APICallConfig" , fileName = "APICallConfig")]
     public class APICallConfig : ScriptableObject
     {
-        public BackendSetting[] backendSettings;
+        public List<BackendSetting> backendSettingList = new List<BackendSetting>();
         public int timeoutInSeconds = 10;
 
         public int SelectedBackendIndex => selectedBackendIndex;
-        [HideInInspector][SerializeField] int selectedBackendIndex;
+        [HideInInspector] [SerializeField] int selectedBackendIndex;
 
         public BackendSetting GetCurrentEnvironment()
         {
-            if (selectedBackendIndex < 0 || selectedBackendIndex >= backendSettings.Length)
-                    return null;
+            if (selectedBackendIndex < 0 || selectedBackendIndex >= backendSettingList.Count)
+                return null;
 
-            return backendSettings[selectedBackendIndex];
+            return backendSettingList[selectedBackendIndex];
         }
-        
-        [Header("Debugging")]
-        public bool isForceUseTestMode;
+
+        [Header("Debugging")] public bool isForceUseTestMode;
         public TestMode testMode;
         public APILogOption logOption = APILogOption.Pretty;
-        
-        [Header("Format Settings")]
-        public ClientRequestRule clientRequestRule;
+
+        [Header("Format Settings")] public ClientRequestRule clientRequestRule;
         public ServerResultRule serverResultRule;
 
         public void SetBackendEnvironment(string environmentName)
         {
-            var matchedSetting = backendSettings.FirstOrDefault(env => env.name == environmentName);
+            var matchedSetting = backendSettingList.FirstOrDefault(env => env.name == environmentName);
             if (matchedSetting == null)
                 throw new Exception($"There is no assigned BackendSetting with name: {environmentName}");
 
-            var index = Array.IndexOf(backendSettings, matchedSetting);
+            var index = backendSettingList.IndexOf(matchedSetting);
             SetBackendEnvironmentByIndex(index);
         }
 
         public void SetBackendEnvironmentByIndex(int index)
         {
-            selectedBackendIndex = Mathf.Clamp(index, 0, backendSettings.Length -1);
+            selectedBackendIndex = Mathf.Clamp(index, 0, backendSettingList.Count - 1);
 #if UNITY_EDITOR
             UnityEditor.EditorUtility.SetDirty(this);
 #endif
@@ -50,10 +49,7 @@ namespace PhEngine.Network
 
         public string[] GetEnvironmentOptions()
         {
-            if (backendSettings == null)
-                return new string[] {};
-
-            return backendSettings
+            return backendSettingList
                 .Select(setting => setting.name)
                 .Where(value => !string.IsNullOrEmpty(value))
                 .ToArray();
