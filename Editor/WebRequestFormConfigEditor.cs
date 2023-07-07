@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace PhEngine.Network.Editor
 {
-    [CustomEditor(typeof(WebRequestFormConfig))]
+    [CustomEditor(typeof(WebRequestFormConfig)), CanEditMultipleObjects]
     public class WebRequestFormConfigEditor : UnityEditor.Editor
     {
         WebRequestFormConfig config;
