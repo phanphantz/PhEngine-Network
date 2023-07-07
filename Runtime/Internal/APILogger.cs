@@ -22,10 +22,11 @@ namespace PhEngine.Network
         public void LogStartRequest()
         {
             var stringBuilder = GetEndpointLogTitle(ClientRequest, GetStartKeyword(LogOption));
-            if (ClientRequest.ParameterType == ParameterType.Body && (int)LogOption >= 1)
+            var content = ClientRequest.Content;
+            if (content &&ClientRequest.ParameterType == ParameterType.Body && (int)LogOption >= 1)
             {
                 stringBuilder.Append("\n");
-                stringBuilder.Append(ClientRequest.Content.Print(IsUsePrettyFormat));
+                stringBuilder.Append(content.Print(IsUsePrettyFormat));
                 stringBuilder.Append("\n\n");
             }
 
