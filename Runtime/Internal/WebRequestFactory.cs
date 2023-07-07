@@ -8,9 +8,9 @@ namespace PhEngine.Network
 {
     internal static class WebRequestFactory
     {
-        internal static UnityWebRequest Create(APICallConfig config, RequestHeaderSetting[] headerSettings, string accessToken, ClientRequest clientRequest)
+        internal static UnityWebRequest Create(APICallConfig config, BackendSetting environment, RequestHeaderSetting[] headerSettings, string accessToken, ClientRequest clientRequest)
         {
-            var fullURL = GetFullURL(clientRequest, config.GetBackendSetting());
+            var fullURL = GetFullURL(clientRequest, environment);
             var webRequest = new UnityWebRequest(fullURL, clientRequest.Verb.ToString());
             AddContent(clientRequest, webRequest);
             AddRequestHeaders(webRequest, config.clientRequestRule, headerSettings, accessToken);
@@ -130,6 +130,12 @@ namespace PhEngine.Network
         {
             key = setting.key;
             value = setting.value;
+        }
+
+        public RequestHeaderSetting(string key, string value)
+        {
+            this.key = key;
+            this.value = value;
         }
     }
 }

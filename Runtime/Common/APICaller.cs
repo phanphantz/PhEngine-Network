@@ -1,6 +1,8 @@
 using UnityEngine;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using PhEngine.Core;
 using UnityEngine.Networking;
 
@@ -10,7 +12,7 @@ namespace PhEngine.Network
     {
         [SerializeField] string accessToken;
         [SerializeField] string refreshToken;
-        [SerializeField] RequestHeaderSetting[] requestHeaderModifications;
+        [SerializeField] List<RequestHeaderSetting> requestHeaderModifications = new List<RequestHeaderSetting>();
         
         [Header("Info")]
         [SerializeField] string latestServerTimeString;
@@ -25,8 +27,6 @@ namespace PhEngine.Network
         public AccessTokenValidator AccessTokenValidator => accessTokenValidator;
         [SerializeField] AccessTokenValidator accessTokenValidator;
 
-        #region Initialization
-        
         protected override void InitAfterAwake()
         {
             NetworkEvent.OnReceiveServerTime += SetLatestServerTime;
@@ -42,8 +42,43 @@ namespace PhEngine.Network
             LatestServerTime = dateTime;
             latestServerTimeString = dateTime.ToString(CultureInfo.InvariantCulture);
         }
-        
-        #endregion
+
+        public void SetBackendEnvironment(string environmentName)
+        {
+            config.SetBackendEnvironment(environmentName);
+        }
+
+        public void SetHeaderModification(string key, string value)
+        {
+            var existingHeader = GetHeaderModification(key);
+            if (existingHeader != null)
+            {
+                existingHeader.value = value;
+            }
+            else
+            {
+                requestHeaderModifications.Add(new RequestHeaderSetting(key, value));
+            }
+        }
+
+        public RequestHeaderSetting GetHeaderModification(string key)
+        {
+            return requestHeaderModifications.FirstOrDefault(h => h.key == key);
+        }
+
+        public void RemoveHeaderModification(string key)
+        {
+            var existingHeader = GetHeaderModification(key);
+            if (existingHeader != null)
+            {
+                requestHeaderModifications.Remove(existingHeader);
+            }
+        }
+
+        public void ClearHeaderModification()
+        {
+            requestHeaderModifications.Clear();
+        }
         
         internal UnityWebRequest CreateWebRequest(APIOperation operation)
         {
@@ -53,13 +88,13 @@ namespace PhEngine.Network
             operation.SetLogOption(config.logOption);
             operation.SetServerResultRule(config.serverResultRule);
             
+            var backendSetting = config.GetCurrentEnvironment();
             var finalAccessToken = GetFinalAccessToken();
-            return WebRequestFactory.Create(config, requestHeaderModifications, finalAccessToken, operation.ClientRequest);
+            return WebRequestFactory.Create(config, backendSetting, requestHeaderModifications.ToArray(), finalAccessToken, operation.ClientRequest);
             
             string GetFinalAccessToken()
             {
 #if UNITY_EDITOR
-                var backendSetting = config.GetBackendSetting();
                 if (Application.isEditor && backendSetting != null && backendSetting.isUseEditorAccessToken)
                     return backendSetting.editorAccessToken;
 #endif
