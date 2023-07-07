@@ -60,10 +60,13 @@ namespace PhEngine.Network
             dateTime = fullJson.SafeString(resultRule.currentDateTimeFieldName);
             message = fullJson.SafeString(resultRule.messageFieldName);
             
-            if (string.IsNullOrEmpty(resultRule.dataFieldName))
-                dataJson = fullJson;
-            else
-                dataJson = fullJson.GetField(resultRule.dataFieldName);
+            dataJson = fullJson;
+            if (!string.IsNullOrEmpty(resultRule.dataFieldName))
+            {
+                var tryGetDataJsonFromField = fullJson.GetField(resultRule.dataFieldName);
+                if (tryGetDataJsonFromField != null)
+                    dataJson = tryGetDataJsonFromField;
+            }
             
             bool IsHasResponse()
             {
