@@ -7,7 +7,6 @@ namespace PhEngine.Network
     [Serializable]
     public struct WebRequestForm
     {
-        public string name;
         public string path;
         public HTTPVerb verb;
         public ParameterType parameterType;
@@ -19,7 +18,6 @@ namespace PhEngine.Network
 
         public WebRequestForm(string path, HTTPVerb verb, ParameterType parameterType = ParameterType.None, WebRequestPathType type = WebRequestPathType.FullURL, WebRequestSetting setting = null, string requestBodyTemplate = null)
         {
-            name = string.Empty;
             this.path = path;
             this.verb = verb;
             this.parameterType = parameterType;
@@ -30,7 +28,6 @@ namespace PhEngine.Network
 
         public WebRequestForm(WebRequestForm form)
         {
-            name = string.Empty;
             path = form.path;
             verb = form.verb;
             parameterType = form.parameterType;
