@@ -108,15 +108,10 @@ namespace PhEngine.Network
 
         static void SetLatestServerTime(DateTime newTime)
         {
-            NotifyTimeChange(newTime);
+            //Debug.Log($"Receive Time From Server : {newTime}");
+            OnReceiveServerTime?.Invoke(newTime);
             NotifyNewDayIfNeeded(newTime);
             NotifyTimeUpdateFinished(newTime);
-        }
-
-        static void NotifyTimeChange(DateTime newTime)
-        {
-            Debug.Log($"Receive Time From Server : {newTime}");
-            OnReceiveServerTime?.Invoke(newTime);
         }
 
         static void NotifyNewDayIfNeeded(DateTime newTime)
