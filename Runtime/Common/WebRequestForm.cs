@@ -32,7 +32,7 @@ namespace PhEngine.Network
             verb = form.verb;
             parameterType = form.parameterType;
             type = form.type;
-            setting = form.setting;
+            setting = new WebRequestSetting(form.setting);
             requestBodyTemplate = form.requestBodyTemplate;
         }
     }
@@ -59,8 +59,22 @@ namespace PhEngine.Network
         public bool isShowErrorOnConnectionFail = true;
         public bool isShowErrorOnServerFail = true;
         public bool isShowErrorOnClientFail = true;
-        [FormerlySerializedAs("debugMode")] public TestMode testMode;
+        public TestMode testMode;
         public FailureHandling failureHandling;
+        
+        public WebRequestSetting()
+        {
+        }
+        
+        public WebRequestSetting(WebRequestSetting setting)
+        {
+            isShowLoading = setting.isShowLoading;
+            isShowErrorOnConnectionFail = setting.isShowErrorOnConnectionFail;
+            isShowErrorOnServerFail = setting.isShowErrorOnServerFail;
+            isShowErrorOnClientFail = setting.isShowErrorOnClientFail;
+            testMode = setting.testMode;
+            failureHandling = setting.failureHandling;
+        }
     }
     
     public enum FailureHandling
