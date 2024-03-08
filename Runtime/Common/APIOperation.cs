@@ -194,6 +194,7 @@ namespace PhEngine.Network
             NetworkEvent.InvokeOnAnyClientFail(error);
         }
         
+        protected override bool IsShouldFinish => base.IsShouldFinish || ClientRequest.TestMode != TestMode.Off;
         protected override float GetWebRequestProgress()
         {
             return ClientRequest.TestMode != TestMode.Off ? 1f : base.GetWebRequestProgress();
