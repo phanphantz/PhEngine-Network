@@ -215,49 +215,86 @@ namespace PhEngine.Network
 
         #region Public Set Methods
 
-        public void SetMockedResponseData(JSONObject value)
+        public APIOperation SetMockedResponseData(JSONObject value)
         {
-            if (value == null)
-                return;
-            
-            SetMockedResponseData(value.ToString());
+            SetMockedResponseData(value?.ToString());
+            return this;
         }
         
-        public void SetMockedResponseData(string value)
+        public APIOperation SetMockedResponseData(string value)
         {
             ClientRequest.SetMockedResponseData(value);
+            return this;
         }
         
-        public void SetMockedFullJson(JSONObject value)
+        public APIOperation SetMockedFullJson(JSONObject value)
         {
-            if (value == null)
-                return;
-            
-            SetMockedFullJson(value.ToString());
+            SetMockedFullJson(value?.ToString());
+            return this;
         }
         
-        public void SetMockedFullJson(string value)
+        public APIOperation SetMockedFullJson(string value)
         {
             ClientRequest.SetMockedFullJson(value);
+            return this;
         }
 
-        public void SetDebugMode(TestMode mode)
+        public APIOperation SetDebugMode(TestMode mode)
         {
             ClientRequest.SetDebugMode(mode);
+            return this;
         }
 
-        public void SetRequestBody(JSONObject json)
+        public APIOperation SetRequestBody(JSONObject json)
         {
             ClientRequest.SetContent(json);
+            return this;
         }
 
-        public void SetRequestBody(object data)
+        public APIOperation AddRequestField(string fieldName, int value)
+        {
+            ClientRequest.AddRequestField(fieldName, value);
+            return this;
+        }
+        
+        public APIOperation	AddRequestField(string fieldName, string value)
+        {
+            ClientRequest.AddRequestField(fieldName, value);
+            return this;
+        }
+        
+        public APIOperation	AddRequestField(string fieldName, long value)
+        {
+            ClientRequest.AddRequestField(fieldName, value);
+            return this;
+        }
+        
+        public APIOperation	AddRequestField(string fieldName, bool value)
+        {
+            ClientRequest.AddRequestField(fieldName, value);
+            return this;
+        }
+        
+        public APIOperation	AddRequestField(string fieldName, float value)
+        {
+            ClientRequest.AddRequestField(fieldName, value);
+            return this;
+        }
+        
+        public APIOperation	AddRequestField(string fieldName, JSONObject value)
+        {
+            ClientRequest.AddRequestField(fieldName, value);
+            return this;
+        }
+
+        public APIOperation SetRequestBody(object data)
         {
             var jsonString = JsonConvert.SerializeObject(data);
             SetRequestBody(new JSONObject(jsonString));
+            return this;
         }
 
-        public void SetMockedResponseData(object value)
+        public APIOperation SetMockedResponseData(object value)
         {
             try
             {
@@ -268,6 +305,38 @@ namespace PhEngine.Network
             {
                 Debug.LogError(e);
             }
+
+            return this;
+        }
+        
+        public APIOperation SetLogOption(APILogOption option)
+        {
+            logOption = option;
+            return this;
+        }
+        
+        public APIOperation AddHeader(RequestHeader header)
+        {
+            ClientRequest.AddHeader(header);
+            return this;
+        }
+        
+        public APIOperation SetHeaders(params RequestHeader[] headers)
+        {
+            ClientRequest.SetHeaders(headers);
+            return this;
+        }
+
+        public APIOperation OverrideDataFieldSchema(string schema)
+        {
+            ClientRequest.OverrideDataFieldSchema(schema);
+            return this;
+        }
+
+        public APIOperation AppendDataFieldSchema(string schema)
+        {
+            ClientRequest.AppendDataFieldSchema(schema);
+            return this;
         }
 
         #endregion
@@ -351,36 +420,11 @@ namespace PhEngine.Network
         
         protected override ServerResult GetGuardConditionResult() => Result;
 
-        internal void SetLogOption(APILogOption option)
-        {
-            logOption = option;
-        }
-
         internal void SetServerResultRule(ServerResultRule rule)
         {
             serverResultRule = rule;
         }
-        
-        public void AddHeader(RequestHeader header)
-        {
-            ClientRequest.AddHeader(header);
-        }
-        
-        public void SetHeaders(params RequestHeader[] headers)
-        {
-            ClientRequest.SetHeaders(headers);
-        }
 
-        public void OverrideDataFieldSchema(string schema)
-        {
-            ClientRequest.OverrideDataFieldSchema(schema);
-        }
-
-        public void AppendDataFieldSchema(string schema)
-        {
-            ClientRequest.AppendDataFieldSchema(schema);
-        }
-        
 #if UNITASK
         public async UniTask<JSONObject> JsonTask(JSONObject mockData = null)
         {

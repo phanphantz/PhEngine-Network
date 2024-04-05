@@ -75,12 +75,42 @@ namespace PhEngine.Network
 
         internal void OverrideDataFieldSchema(string schema)
         {
-            Form.customSchema = new CustomSchema(schema, CustomSchemaType.Override);
+            Form.customSchema = new CustomSchema(schema, JsonSchemaModification.Override);
         }
         
         internal void AppendDataFieldSchema(string schema)
         {
-            Form.customSchema = new CustomSchema(schema, CustomSchemaType.Append);
+            Form.customSchema = new CustomSchema(schema, JsonSchemaModification.Append);
+        }
+
+        public void	AddRequestField(string fieldName, int value)
+        {
+            Content.AddField(fieldName, value);
+        }
+        
+        public void	AddRequestField(string fieldName, string value)
+        {
+            Content.AddField(fieldName, value);
+        }
+        
+        public void	AddRequestField(string fieldName, long value)
+        {
+            Content.AddField(fieldName, value);
+        }
+        
+        public void	AddRequestField(string fieldName, bool value)
+        {
+            Content.AddField(fieldName, value);
+        }
+        
+        public void	AddRequestField(string fieldName, float value)
+        {
+            Content.AddField(fieldName, value);
+        }
+        
+        public void	AddRequestField(string fieldName, JSONObject value)
+        {
+            Content.AddField(fieldName, value);
         }
     }
     
@@ -92,14 +122,14 @@ namespace PhEngine.Network
     [Serializable]
     public class CustomSchema
     {
-        public CustomSchemaType mode;
         public string value;
+        public JsonSchemaModification mode;
 
         public CustomSchema()
         {
         }
         
-        public CustomSchema(string value, CustomSchemaType mode)
+        public CustomSchema(string value, JsonSchemaModification mode)
         {
             this.value = value;
             this.mode = mode;
@@ -115,11 +145,11 @@ namespace PhEngine.Network
         {
             switch (mode)
             {
-                case CustomSchemaType.None:
+                case JsonSchemaModification.None:
                     return input;
-                case CustomSchemaType.Append:
+                case JsonSchemaModification.Append:
                     return input + "/" + value;
-                case CustomSchemaType.Override:
+                case JsonSchemaModification.Override:
                     return value;
                 default:
                     throw new NotImplementedException();
@@ -127,7 +157,7 @@ namespace PhEngine.Network
         }
     }
 
-    public enum CustomSchemaType
+    public enum JsonSchemaModification
     {
         None, Override, Append
     }
