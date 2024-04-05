@@ -14,17 +14,24 @@ namespace PhEngine.Network
         [SerializeField] bool isCheckBeforeCall = true;
         [SerializeField] bool isCheckAfterCall = true;
 
-        Operation currentRefreshOperation;
+        static Operation currentRefreshOperation;
+        
+        const string ClientAccessTokenExpireErrorMessage = "Client's Access Token is expired. Fixing...";
         
         public void BindValidateActions(APIOperation apiOp)
         {
+            if (!APICaller.Instance.HasAccessToken)
+                return;
+            
             //Don't interact with the refresh API operation itself!
             if (apiOp == currentRefreshOperation)
                 return;
             
             var parentFlow = apiOp.ParentFlow;
             if (isCheckBeforeCall)
-                apiOp.AbortOn(() => TryHandleOnClientExpired(apiOp, parentFlow), "Client's Access Token is expired. Fixing...", FailureHandling.None, -1);
+            {
+                apiOp.AbortOn(() => TryHandleOnClientExpired(apiOp, parentFlow), ClientAccessTokenExpireErrorMessage, FailureHandling.None, -1);
+            }
 
             if (isCheckAfterCall)
                 apiOp.OnReceiveResponse += () => TryHandleOnServerExpired(apiOp, parentFlow);
@@ -33,6 +40,9 @@ namespace PhEngine.Network
 #if UNITASK
         public async UniTask ValidateBeforeCallTask(APIOperation apiOp)
         {
+            if (!APICaller.Instance.HasAccessToken)
+                return;
+            
             if (!isCheckBeforeCall)
                 return;
             
@@ -43,11 +53,16 @@ namespace PhEngine.Network
             if (!IsExpiredBeforeCall())
                 return;
             
-            await CreateRefreshAccessTokenCall().Task();
+            Debug.LogError(ClientAccessTokenExpireErrorMessage);
+            currentRefreshOperation = CreateRefreshAccessTokenCall();
+            await currentRefreshOperation.Task();
         }
 
         public async UniTask<bool> TryValidateAfterCallTask(APIOperation apiOp, ServerResult result)
         {
+            if (!APICaller.Instance.HasAccessToken)
+                return false;
+            
             if (!isCheckAfterCall)
                 return false;
             
@@ -58,7 +73,8 @@ namespace PhEngine.Network
             if (!IsExpiredAfterCall(result))
                 return false;
 
-            await CreateRefreshAccessTokenCall().Task();
+            currentRefreshOperation = CreateRefreshAccessTokenCall();
+            await currentRefreshOperation.Task();
             await apiOp.Task();
             return true;
         }

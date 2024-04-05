@@ -12,7 +12,7 @@ namespace PhEngine.Network
     {
         [SerializeField] string accessToken;
         [SerializeField] string refreshToken;
-        [SerializeField] List<RequestHeaderSetting> requestHeaderModifications = new List<RequestHeaderSetting>();
+        [SerializeField] List<RequestHeader> requestHeaderModifications = new List<RequestHeader>();
         
         [Header("Info")]
         [SerializeField] string latestServerTimeString;
@@ -57,11 +57,11 @@ namespace PhEngine.Network
             }
             else
             {
-                requestHeaderModifications.Add(new RequestHeaderSetting(key, value));
+                requestHeaderModifications.Add(new RequestHeader(key, value));
             }
         }
 
-        public RequestHeaderSetting GetHeaderModification(string key)
+        public RequestHeader GetHeaderModification(string key)
         {
             return requestHeaderModifications.FirstOrDefault(h => h.key == key);
         }
@@ -104,9 +104,23 @@ namespace PhEngine.Network
         
         public void SetAccessToken(string value) => accessToken = value;
         public void SetRefreshToken(string value) => refreshToken = value;
-        public void SetAccessTokenExpireTime(DateTime dateTime) => AccessTokenExpireTime = dateTime;
-        public void SetRefreshTokenExpireTime(DateTime dateTime) => RefreshTokenExpireTime = dateTime;
-        public bool IsAccessTokenExpired(DateTime currentTime) => currentTime >= AccessTokenExpireTime;
-        public bool IsRefreshTokenExpired(DateTime currentTime) => currentTime >= RefreshTokenExpireTime;
+        
+        public void SetAccessTokenExpireTime(DateTime dateTime)
+        {
+            AccessTokenExpireTime = dateTime;
+            var expireIn = AccessTokenExpireTime.ToUniversalTime() - DateTime.UtcNow;
+            Debug.Log($"Set Access Token Expire Date to be {expireIn} from now ( {AccessTokenExpireTime} )");
+        } 
+        
+        public void SetRefreshTokenExpireTime(DateTime dateTime)
+        {
+            RefreshTokenExpireTime = dateTime;
+            var expireIn = RefreshTokenExpireTime.ToUniversalTime() - DateTime.UtcNow;
+            Debug.Log($"Set Refresh Token Expire Date to be {expireIn} from now ( {RefreshTokenExpireTime} )");
+        }
+        
+        public bool HasAccessToken => !string.IsNullOrEmpty(accessToken);
+        public bool IsAccessTokenExpired(DateTime currentTime) => HasAccessToken && currentTime >= AccessTokenExpireTime;
+        public bool IsRefreshTokenExpired(DateTime currentTime) => !string.IsNullOrEmpty(refreshToken) && currentTime >= RefreshTokenExpireTime;
     }
 }
