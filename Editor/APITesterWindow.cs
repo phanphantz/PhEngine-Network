@@ -21,7 +21,7 @@ namespace PhEngine.Network.Editor
             formConfig = EditorGUILayout.ObjectField(new GUIContent("From Config"), formConfig, typeof(WebRequestFormConfig), false) as WebRequestFormConfig;
             if (EditorGUI.EndChangeCheck() && formConfig)
             {
-                requestBody = formConfig.Form.requestBodyTemplate;
+                requestBody = formConfig.requestBody;
             }
             
             EditorGUILayout.LabelField("Request Body:");

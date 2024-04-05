@@ -14,19 +14,13 @@ namespace PhEngine.Network
         public WebRequestPathType type;
         public WebRequestSetting setting;
 
-        [TextArea(0,100)]
-        public string requestBodyTemplate;
-        public RequestHeader[] headerTemplates;
-
-        public WebRequestForm(string path, HTTPVerb verb, ParameterType parameterType = ParameterType.None, WebRequestPathType type = WebRequestPathType.FullURL, WebRequestSetting setting = null, string requestBodyTemplate = null, RequestHeader[] headers = null)
+        public WebRequestForm(string path, HTTPVerb verb, ParameterType parameterType = ParameterType.None, WebRequestPathType type = WebRequestPathType.FullURL, WebRequestSetting setting = null)
         {
             this.path = path;
             this.verb = verb;
             this.parameterType = parameterType;
             this.type = type;
             this.setting = setting ?? new WebRequestSetting();
-            this.requestBodyTemplate = requestBodyTemplate;
-            headerTemplates = headers?.Select(h => new RequestHeader(h)).ToArray();
         }
 
         public WebRequestForm(WebRequestForm form)
@@ -36,8 +30,6 @@ namespace PhEngine.Network
             parameterType = form.parameterType;
             type = form.type;
             setting = new WebRequestSetting(form.setting);
-            requestBodyTemplate = form.requestBodyTemplate;
-            headerTemplates = form.headerTemplates?.Select(h => new RequestHeader(h)).ToArray();
         }
     }
     
