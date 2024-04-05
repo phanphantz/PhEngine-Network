@@ -2,6 +2,7 @@ using System;
 using System.Net;
 using System.Linq;
 using PhEngine.Core.JSON;
+using UnityEngine;
 using UnityEngine.Networking;
 
 namespace PhEngine.Network
@@ -71,7 +72,8 @@ namespace PhEngine.Network
                 dataJson = fullJson;
                 if (!string.IsNullOrEmpty(resultRule.dataFieldSchema))
                 {
-                    var tryGetDataJsonFromField = resultRule.GetTargetFieldFromSchema(fullJson, resultRule.dataFieldSchema, out _);
+                    var finalSchema = clientRequest.DataFieldCustomSchema.GetFinalSchema(resultRule.dataFieldSchema);
+                    var tryGetDataJsonFromField = resultRule.SafeJsonFromSchema(fullJson,finalSchema);
                     if (tryGetDataJsonFromField != null)
                         dataJson = tryGetDataJsonFromField;
                 }
@@ -164,6 +166,12 @@ namespace PhEngine.Network
         {
             var currentField = GetTargetFieldFromSchema(json, schema, out var targetField);
             return currentField.SafeInt(targetField);
+        }
+
+        public JSONObject SafeJsonFromSchema(JSONObject json, string schema)
+        {
+            var currentField = GetTargetFieldFromSchema(json, schema, out var targetField);
+            return currentField.GetField(targetField);
         }
 
         public JSONObject GetTargetFieldFromSchema(JSONObject json, string schema, out string targetField)

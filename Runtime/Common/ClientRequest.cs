@@ -13,6 +13,7 @@ namespace PhEngine.Network
         public string MockedFullJson { get; private set; }
         public WebRequestForm Form { get; }
         public List<RequestHeader> HeaderList { get; private set; } = new List<RequestHeader>();
+        public CustomSchema DataFieldCustomSchema => Form.customSchema;
         
         public string Destination => Form.path;
         public HTTPVerb Verb => Form.verb;
@@ -71,10 +72,63 @@ namespace PhEngine.Network
         {
             HeaderList = new List<RequestHeader>(headers);
         }
+
+        internal void OverrideDataFieldSchema(string schema)
+        {
+            Form.customSchema = new CustomSchema(schema, CustomSchemaType.Override);
+        }
+        
+        internal void AppendDataFieldSchema(string schema)
+        {
+            Form.customSchema = new CustomSchema(schema, CustomSchemaType.Append);
+        }
     }
     
     public enum TestMode
     {
         Off, MockServerReturnSuccess, MockServerReturnFail, MockConnectionFail 
+    }
+
+    [Serializable]
+    public class CustomSchema
+    {
+        public CustomSchemaType mode;
+        public string value;
+
+        public CustomSchema()
+        {
+        }
+        
+        public CustomSchema(string value, CustomSchemaType mode)
+        {
+            this.value = value;
+            this.mode = mode;
+        }
+
+        public CustomSchema(CustomSchema customSchema)
+        {
+            value = customSchema.value;
+            mode = customSchema.mode;
+        }
+
+        public string GetFinalSchema(string input)
+        {
+            switch (mode)
+            {
+                case CustomSchemaType.None:
+                    return input;
+                case CustomSchemaType.Append:
+                    return input + "/" + value;
+                case CustomSchemaType.Override:
+                    return value;
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+    }
+
+    public enum CustomSchemaType
+    {
+        None, Override, Append
     }
 }

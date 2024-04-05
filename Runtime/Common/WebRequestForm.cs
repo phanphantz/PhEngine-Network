@@ -6,21 +6,25 @@ using UnityEngine.Serialization;
 namespace PhEngine.Network
 {
     [Serializable]
-    public struct WebRequestForm
+    public class WebRequestForm
     {
         public string path;
         public HTTPVerb verb;
         public ParameterType parameterType;
         public WebRequestPathType type;
+        public CustomSchema customSchema;
         public WebRequestSetting setting;
 
-        public WebRequestForm(string path, HTTPVerb verb, ParameterType parameterType = ParameterType.None, WebRequestPathType type = WebRequestPathType.FullURL, WebRequestSetting setting = null)
+        public WebRequestForm(string path, HTTPVerb verb, ParameterType parameterType = ParameterType.None,
+            WebRequestPathType type = WebRequestPathType.FullURL, WebRequestSetting setting = null,
+            CustomSchema customCustomSchema = null)
         {
             this.path = path;
             this.verb = verb;
             this.parameterType = parameterType;
             this.type = type;
-            this.setting = setting ?? new WebRequestSetting();
+            this.setting = setting != null ? new WebRequestSetting(setting) : new WebRequestSetting();
+            this.customSchema = customCustomSchema != null ? new CustomSchema(customCustomSchema) : new CustomSchema();
         }
 
         public WebRequestForm(WebRequestForm form)
@@ -30,6 +34,7 @@ namespace PhEngine.Network
             parameterType = form.parameterType;
             type = form.type;
             setting = new WebRequestSetting(form.setting);
+            customSchema = new CustomSchema(form.customSchema);
         }
     }
     

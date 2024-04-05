@@ -366,6 +366,21 @@ namespace PhEngine.Network
             ClientRequest.AddHeader(header);
         }
         
+        public void SetHeaders(params RequestHeader[] headers)
+        {
+            ClientRequest.SetHeaders(headers);
+        }
+
+        public void OverrideDataFieldSchema(string schema)
+        {
+            ClientRequest.OverrideDataFieldSchema(schema);
+        }
+
+        public void AppendDataFieldSchema(string schema)
+        {
+            ClientRequest.AppendDataFieldSchema(schema);
+        }
+        
 #if UNITASK
         public async UniTask<JSONObject> JsonTask(JSONObject mockData = null)
         {

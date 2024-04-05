@@ -131,7 +131,7 @@ namespace PhEngine.Network
 
         string GetResultJsonString(ServerResult result)
         {
-            if (result.isMocked)
+            if (result.isMocked && result.fullJson == null)
                 return result.dataJson == null ? "null" : result.dataJson.Print(IsUsePrettyFormat);
             
             return result.fullJson == null ? "null" : result.fullJson.Print(IsUsePrettyFormat);
