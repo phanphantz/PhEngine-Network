@@ -22,7 +22,7 @@ namespace PhEngine.Network
         public virtual APIOperation CreateOperation()
         {
             var apiOp = new APIOperation(Form, CreateBody());
-            apiOp.SetMockedResponse(CreateBody());
+            apiOp.SetMockedResponseData(CreateBody());
             apiOp.OnFail += OnFail;
             return apiOp;
         }

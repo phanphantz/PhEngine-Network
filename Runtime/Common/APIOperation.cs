@@ -215,17 +215,30 @@ namespace PhEngine.Network
 
         #region Public Set Methods
 
-        public void SetMockedResponse(JSONObject value)
+        public void SetMockedResponseData(JSONObject value)
         {
             if (value == null)
                 return;
             
-            SetMockedResponse(value.ToString());
+            SetMockedResponseData(value.ToString());
         }
         
-        public void SetMockedResponse(string value)
+        public void SetMockedResponseData(string value)
         {
-            ClientRequest.SetMockedResponse(value);
+            ClientRequest.SetMockedResponseData(value);
+        }
+        
+        public void SetMockedFullJson(JSONObject value)
+        {
+            if (value == null)
+                return;
+            
+            SetMockedFullJson(value.ToString());
+        }
+        
+        public void SetMockedFullJson(string value)
+        {
+            ClientRequest.SetMockedFullJson(value);
         }
 
         public void SetDebugMode(TestMode mode)
@@ -244,12 +257,12 @@ namespace PhEngine.Network
             SetRequestBody(new JSONObject(jsonString));
         }
 
-        public void SetMockedResponse(object value)
+        public void SetMockedResponseData(object value)
         {
             try
             {
                 var str = JsonConvert.SerializeObject(value);
-                SetMockedResponse(str);
+                SetMockedResponseData(str);
             }
             catch (Exception e)
             {

@@ -38,34 +38,43 @@ namespace PhEngine.Network
             {
                 isMocked = true;
                 MockStatus(clientRequest.TestMode);
-                dataJson = new JSONObject(clientRequest.MockedResponse);
-                return;
+                if (!string.IsNullOrEmpty(clientRequest.MockedFullJson))
+                {
+                    fullJson = new JSONObject(clientRequest.MockedFullJson);
+                    dataJson = resultRule.GetTargetFieldFromSchema(fullJson, resultRule.dataFieldSchema, out _);
+                }
+                else if (!string.IsNullOrEmpty(clientRequest.MockedResponseData))
+                    dataJson = new JSONObject(clientRequest.MockedResponseData);
             }
-            
-            code = (int)unityWebRequest.responseCode;
-            httpStatus = (HttpStatusCode)code;
-            if (!IsHasResponse())
+            else
             {
+                code = (int)unityWebRequest.responseCode;
+                httpStatus = (HttpStatusCode)code;
+                if (!IsHasResponse())
+                {
+                    status = GetServerResultStatus();
+                    return;
+                }
+
+                fullJson = new JSONObject(unityWebRequest.downloadHandler.text);
                 status = GetServerResultStatus();
-                return;
             }
 
-            fullJson = new JSONObject(unityWebRequest.downloadHandler.text);
-            
-            var codeFromJson = resultRule.GetStatusCodeField(fullJson);
-            if (codeFromJson != 0)
-                code = codeFromJson;
-            
-            status = GetServerResultStatus();
-            dateTime = resultRule.GetCurrentDateTimeField(fullJson);
-            message = resultRule.GetMessageField(fullJson);
-            
-            dataJson = fullJson;
-            if (!string.IsNullOrEmpty(resultRule.dataFieldSchema))
+            if (fullJson != null)
             {
-                var tryGetDataJsonFromField = resultRule.GetTargetFieldFromSchema(fullJson, resultRule.dataFieldSchema, out _);
-                if (tryGetDataJsonFromField != null)
-                    dataJson = tryGetDataJsonFromField;
+                var codeFromJson = resultRule.GetStatusCodeField(fullJson);
+                if (codeFromJson != 0)
+                    code = codeFromJson;
+            
+                dateTime = resultRule.GetCurrentDateTimeField(fullJson);
+                message = resultRule.GetMessageField(fullJson);
+                dataJson = fullJson;
+                if (!string.IsNullOrEmpty(resultRule.dataFieldSchema))
+                {
+                    var tryGetDataJsonFromField = resultRule.GetTargetFieldFromSchema(fullJson, resultRule.dataFieldSchema, out _);
+                    if (tryGetDataJsonFromField != null)
+                        dataJson = tryGetDataJsonFromField;
+                }
             }
             
             bool IsHasResponse()
@@ -160,11 +169,15 @@ namespace PhEngine.Network
         public JSONObject GetTargetFieldFromSchema(JSONObject json, string schema, out string targetField)
         {
             var schemas = schema.Split(schemaNavigatorChar);
+            targetField = schemas.LastOrDefault();
             JSONObject currentField = json;
             for (var i = 0; i < schemas.Length - 1; i++)
+            {
                 currentField = currentField.GetField(schemas[i]);
+                if (currentField == null)
+                    return null;
+            }
 
-            targetField = schemas.LastOrDefault();
             return currentField;
         }
     }

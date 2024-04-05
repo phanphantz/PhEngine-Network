@@ -22,6 +22,7 @@ namespace PhEngine.Network
         public bool isUseTestRequestBody;
         public bool isUseTestHeaders;
         public bool isUseMockedResponse;
+        public bool isFullJsonResponse;
 
         [ContextMenu(nameof(Test))]
         public void Test()
@@ -42,7 +43,10 @@ namespace PhEngine.Network
 
             if (isUseMockedResponse)
             {
-                op.SetMockedResponse(new JSONObject(response));
+                if (isFullJsonResponse)
+                    op.SetMockedFullJson(new JSONObject(response));
+                else
+                    op.SetMockedResponseData(new JSONObject(response));
             }
 
             op.Run();

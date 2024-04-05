@@ -9,7 +9,8 @@ namespace PhEngine.Network
     public class ClientRequest
     {
         public JSONObject Content { get; private set; }
-        public string MockedResponse { get; private set; }
+        public string MockedResponseData { get; private set; }
+        public string MockedFullJson { get; private set; }
         public WebRequestForm Form { get; }
         public List<RequestHeader> HeaderList { get; private set; } = new List<RequestHeader>();
         
@@ -31,9 +32,16 @@ namespace PhEngine.Network
                 Content = json;
         }
 
-        internal void SetMockedResponse(string value)
+        internal void SetMockedResponseData(string value)
         {
-            MockedResponse = value;
+            MockedResponseData = value;
+            MockedFullJson = null;
+        }
+        
+        internal void SetMockedFullJson(string value)
+        {
+            MockedFullJson = value;
+            MockedResponseData = null;
         }
 
         internal void SetDebugMode(TestMode mode)
