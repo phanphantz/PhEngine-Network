@@ -18,10 +18,14 @@ namespace PhEngine.Network
             if (factory == null)
                 throw new NullReferenceException("API Caller is missing.");
 
-            if (form.parameterType == ParameterType.Path)
-                new APIOperation(form, form.requestBodyTemplate).Run();
-            else
-                new APIOperation(form, new JSONObject(form.requestBodyTemplate)).Run();
+            var op = form.parameterType == ParameterType.Path ?
+                new APIOperation(form, form.requestBodyTemplate) :
+                new APIOperation(form, new JSONObject(form.requestBodyTemplate));
+
+            foreach (var header in form.headerTemplates)
+                op.AddHeader(header);
+
+            op.Run();
         }
     }
 }

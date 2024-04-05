@@ -23,7 +23,7 @@ namespace PhEngine.Network
         {
             var stringBuilder = GetEndpointLogTitle(ClientRequest, GetStartKeyword(LogOption));
             var content = ClientRequest.Content;
-            if (content &&ClientRequest.ParameterType == ParameterType.Body && (int)LogOption >= 1)
+            if (content && ClientRequest.ParameterType == ParameterType.Body && (int)LogOption >= 1)
             {
                 stringBuilder.Append("\n");
                 stringBuilder.Append(content.Print(IsUsePrettyFormat));
@@ -34,7 +34,13 @@ namespace PhEngine.Network
             {
                 stringBuilder.Append("URL: ");
                 stringBuilder.Append(UnityWebRequest.url);
-                stringBuilder.Append("\n");
+                
+                if (ClientRequest.HeaderList.Count > 0)
+                {
+                    stringBuilder.Append("\n\nHeaders :\n");
+                    foreach (var header in ClientRequest.HeaderList)
+                        stringBuilder.Append($"{header.key} : {header.value}\n");
+                }
             }
 
             Log(stringBuilder.ToString());

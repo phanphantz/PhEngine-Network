@@ -348,6 +348,11 @@ namespace PhEngine.Network
             serverResultRule = rule;
         }
         
+        public void AddHeader(RequestHeader header)
+        {
+            ClientRequest.AddHeader(header);
+        }
+        
 #if UNITASK
         public async UniTask<JSONObject> JsonTask(JSONObject mockData = null)
         {

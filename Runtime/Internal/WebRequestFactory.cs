@@ -6,14 +6,14 @@ using UnityEngine.Networking;
 
 namespace PhEngine.Network
 {
-    internal static class WebRequestFactory
+    public static class WebRequestFactory
     {
-        internal static UnityWebRequest Create(APICallConfig config, BackendSetting environment, RequestHeaderSetting[] headerSettings, string accessToken, ClientRequest clientRequest)
+        internal static UnityWebRequest Create(APICallConfig config, BackendSetting environment, RequestHeader[] headerModifications, string accessToken, ClientRequest clientRequest)
         {
             var fullURL = GetFullURL(clientRequest, environment);
             var webRequest = new UnityWebRequest(fullURL, clientRequest.Verb.ToString());
             AddContent(clientRequest, webRequest);
-            AddRequestHeaders(webRequest, config.clientRequestRule, headerSettings, accessToken);
+            AddRequestHeaders(webRequest, config.clientRequestRule, clientRequest, headerModifications, accessToken);
             webRequest.downloadHandler = new DownloadHandlerBuffer();
             webRequest.timeout = config.timeoutInSeconds;
             return webRequest;
@@ -82,29 +82,32 @@ namespace PhEngine.Network
             }
         }
         
-        static void AddRequestHeaders(UnityWebRequest request, ClientRequestRule requestRule, RequestHeaderSetting[] headerSettingModifications, string accessToken)
+        static void AddRequestHeaders(UnityWebRequest request, ClientRequestRule requestRule, ClientRequest clientRequest, RequestHeader[] headerModifications, string accessToken)
         {
             accessToken ??= "";
+            var requestHeaderList = clientRequest.HeaderList;
             request.SetRequestHeader(requestRule.accessTokenFieldName, requestRule.accessTokenPrefix + accessToken);
-
-            if (requestRule.additionalRequestHeaders == null)
-                return;
+            var finalHeaders = CreateFinalHeaderSettings();
             
-            var headers = CreateFinalHeaderSettings();
-            foreach (var requestHeader in headers)
+            //Overwrite to client request
+            clientRequest.SetHeaders(finalHeaders);
+            
+            //Assign to web request
+            foreach (var requestHeader in finalHeaders)
                 request.SetRequestHeader(requestHeader.key, requestHeader.value);
-            
-            RequestHeaderSetting[] CreateFinalHeaderSettings()
+
+            RequestHeader[] CreateFinalHeaderSettings()
             {
-                var headerList = new List<RequestHeaderSetting>();
-                foreach (var setting in requestRule.additionalRequestHeaders)
+                var headerList = new List<RequestHeader>(requestRule.defaultRequestHeaders);
+                headerList.AddRange(requestHeaderList);
+                foreach (var modification in headerModifications)
                 {
-                    var header = new RequestHeaderSetting(setting);
-                    var modification = headerSettingModifications.FirstOrDefault(mod => mod.key == header.key);
-                    if (modification != null)
-                        header.value = modification.value;
-                
-                    headerList.Add(header);
+                    var existingHeader = headerList.FirstOrDefault(mod => mod.key == modification.key);
+                    if (existingHeader != null)
+                        existingHeader.value = modification.value;
+
+
+                    headerList.Add(new RequestHeader(modification));
                 }
 
                 return headerList.ToArray();
@@ -117,25 +120,6 @@ namespace PhEngine.Network
     {
         public string accessTokenFieldName = "accessToken";
         public string accessTokenPrefix = "bearer ";
-        public RequestHeaderSetting[] additionalRequestHeaders;
-    }
-    
-    [Serializable]
-    public class RequestHeaderSetting
-    {
-        public string key;
-        public string value;
-
-        public RequestHeaderSetting(RequestHeaderSetting setting)
-        {
-            key = setting.key;
-            value = setting.value;
-        }
-
-        public RequestHeaderSetting(string key, string value)
-        {
-            this.key = key;
-            this.value = value;
-        }
+        public RequestHeader[] defaultRequestHeaders = new RequestHeader[]{};
     }
 }

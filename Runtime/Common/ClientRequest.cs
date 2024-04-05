@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using PhEngine.Core.JSON;
 
 namespace PhEngine.Network
@@ -9,6 +11,7 @@ namespace PhEngine.Network
         public JSONObject Content { get; private set; }
         public string MockedResponse { get; private set; }
         public WebRequestForm Form { get; }
+        public List<RequestHeader> HeaderList { get; private set; } = new List<RequestHeader>();
         
         public string Destination => Form.path;
         public HTTPVerb Verb => Form.verb;
@@ -41,6 +44,24 @@ namespace PhEngine.Network
         internal void SetContent(JSONObject json)
         {
             Content = json;
+        }
+        
+        internal void AddHeader(RequestHeader header)
+        {
+            var existingHeader = HeaderList.FirstOrDefault(h => h.key == header.key);
+            if (existingHeader != null)
+            {
+                existingHeader.value = header.value;
+            }
+            else
+            {
+                HeaderList.Add(new RequestHeader(header));
+            }
+        }
+
+        internal void SetHeaders(RequestHeader[] headers)
+        {
+            HeaderList = new List<RequestHeader>(headers);
         }
     }
     
