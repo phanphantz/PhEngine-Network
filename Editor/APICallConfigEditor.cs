@@ -3,14 +3,14 @@ using UnityEngine;
 
 namespace PhEngine.Network.Editor
 {
-    [CustomEditor(typeof(APICallConfig))]
+    [CustomEditor(typeof(APICallerConfig))]
     public class APICallConfigEditor : UnityEditor.Editor
     {
-        APICallConfig config;
+        APICallerConfig config;
         
         void OnEnable()
         {
-            config = target as APICallConfig;
+            config = target as APICallerConfig;
             serializedObject.Update();
         }
 

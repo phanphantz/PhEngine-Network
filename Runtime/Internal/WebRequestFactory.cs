@@ -8,7 +8,7 @@ namespace PhEngine.Network
 {
     public static class WebRequestFactory
     {
-        internal static UnityWebRequest Create(APICallConfig config, BackendSetting environment, RequestHeader[] headerModifications, string accessToken, ClientRequest clientRequest)
+        internal static UnityWebRequest Create(APICallerConfig config, BackendSetting environment, RequestHeader[] headerModifications, string accessToken, ClientRequest clientRequest)
         {
             var fullURL = GetFullURL(clientRequest, environment);
             var webRequest = new UnityWebRequest(fullURL, clientRequest.Verb.ToString());

@@ -21,8 +21,8 @@ namespace PhEngine.Network
         public DateTime RefreshTokenExpireTime { get; private set; }
 
         [Header("Configs")] 
-        [SerializeField] APICallConfig config;
-        public APICallConfig Config => config;
+        [SerializeField] APICallerConfig config;
+        public APICallerConfig Config => config;
 
         public AccessTokenValidator AccessTokenValidator => accessTokenValidator;
         [SerializeField] AccessTokenValidator accessTokenValidator;

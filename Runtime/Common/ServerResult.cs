@@ -52,18 +52,18 @@ namespace PhEngine.Network
 
             fullJson = new JSONObject(unityWebRequest.downloadHandler.text);
             
-            var codeFromJson = fullJson.SafeInt(resultRule.statusCodeFieldName);
+            var codeFromJson = resultRule.GetStatusCodeField(fullJson);
             if (codeFromJson != 0)
                 code = codeFromJson;
             
             status = GetServerResultStatus();
-            dateTime = fullJson.SafeString(resultRule.currentDateTimeFieldName);
-            message = fullJson.SafeString(resultRule.messageFieldName);
+            dateTime = resultRule.GetCurrentDateTimeField(fullJson);
+            message = resultRule.GetMessageField(fullJson);
             
             dataJson = fullJson;
-            if (!string.IsNullOrEmpty(resultRule.dataFieldName))
+            if (!string.IsNullOrEmpty(resultRule.dataFieldSchema))
             {
-                var tryGetDataJsonFromField = fullJson.GetField(resultRule.dataFieldName);
+                var tryGetDataJsonFromField = resultRule.GetTargetFieldFromSchema(fullJson, resultRule.dataFieldSchema, out _);
                 if (tryGetDataJsonFromField != null)
                     dataJson = tryGetDataJsonFromField;
             }
@@ -119,10 +119,54 @@ namespace PhEngine.Network
     public class ServerResultRule
     {
         public StatusCodeRange[] successStatusCodeRanges;
-        public string messageFieldName = "message";
-        public string dataFieldName = "data";
-        public string statusCodeFieldName = "statusCode";
-        public string currentDateTimeFieldName = "currentDateTime";
+        public char schemaNavigatorChar = '/';
+        public string messageFieldSchema = "message";
+        public string dataFieldSchema = "data";
+        public string statusCodeFieldSchema = "statusCode";
+        public string currentDateTimeFieldSchema = "currentDateTime";
+
+        public string GetMessageField(JSONObject json)
+        {
+            return SafeStringFromSchema(json, messageFieldSchema);
+        }
+        
+        public string GetDataField(JSONObject json)
+        {
+            return SafeStringFromSchema(json, dataFieldSchema);
+        }
+        
+        public int GetStatusCodeField(JSONObject json)
+        {
+            return SafeIntFromSchema(json, statusCodeFieldSchema);
+        }
+        
+        public string GetCurrentDateTimeField(JSONObject json)
+        {
+            return SafeStringFromSchema(json, currentDateTimeFieldSchema);
+        }
+
+        string SafeStringFromSchema(JSONObject json, string schema)
+        {
+            var currentField = GetTargetFieldFromSchema(json, schema, out var targetField);
+            return currentField.SafeString(targetField);
+        }
+        
+        int SafeIntFromSchema(JSONObject json, string schema)
+        {
+            var currentField = GetTargetFieldFromSchema(json, schema, out var targetField);
+            return currentField.SafeInt(targetField);
+        }
+
+        public JSONObject GetTargetFieldFromSchema(JSONObject json, string schema, out string targetField)
+        {
+            var schemas = schema.Split(schemaNavigatorChar);
+            JSONObject currentField = json;
+            for (var i = 0; i < schemas.Length - 1; i++)
+                currentField = currentField.GetField(schemas[i]);
+
+            targetField = schemas.LastOrDefault();
+            return currentField;
+        }
     }
     
     [Serializable]

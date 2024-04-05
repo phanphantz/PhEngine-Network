@@ -5,8 +5,8 @@ using UnityEngine;
 
 namespace PhEngine.Network
 {
-    [CreateAssetMenu(menuName = "PhEngine/Network/APICallConfig" , fileName = "APICallConfig")]
-    public class APICallConfig : ScriptableObject
+    [CreateAssetMenu(menuName = "PhEngine/Network/APICallerConfig" , fileName = "APICallerConfig")]
+    public class APICallerConfig : ScriptableObject
     {
         public List<BackendSetting> backendSettingList = new List<BackendSetting>();
         public int timeoutInSeconds = 10;
