@@ -51,5 +51,9 @@ namespace PhEngine.Network
 
             op.Run();
         }
+        
+        public APIOperation CreateCall() => new APIOperation(this);
+        public APIOperation CreateCall(JSONObject json) => new APIOperation(this, json);
+        public APIOperation CreateCall(object obj) => new APIOperation(this, obj);
     }
 }

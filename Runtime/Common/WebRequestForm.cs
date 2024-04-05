@@ -1,8 +1,5 @@
 using System;
-using System.Linq;
 using PhEngine.Core.JSON;
-using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace PhEngine.Network
 {
@@ -14,7 +11,7 @@ namespace PhEngine.Network
         public ParameterType parameterType;
         public WebRequestPathType type;
         public WebRequestSetting setting;
-        [FormerlySerializedAs("customCustomSchema")] public CustomSchema customSchema;
+        public CustomSchema customSchema;
 
         public WebRequestForm(string path, HTTPVerb verb, ParameterType parameterType = ParameterType.None,
             WebRequestPathType type = WebRequestPathType.FullURL, WebRequestSetting setting = null,
@@ -38,8 +35,9 @@ namespace PhEngine.Network
             customSchema = new CustomSchema(form.customSchema);
         }
 
-        public APIOperation CreateCall(JSONObject json = null) => new APIOperation(this, json);
-        public APIOperation CreateCall(object obj = null) => new APIOperation(this, obj);
+        public APIOperation CreateCall() => new APIOperation(this);
+        public APIOperation CreateCall(JSONObject json) => new APIOperation(this, json);
+        public APIOperation CreateCall(object obj) => new APIOperation(this, obj);
     }
     
     public enum HTTPVerb
