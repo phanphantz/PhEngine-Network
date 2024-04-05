@@ -215,6 +215,27 @@ namespace PhEngine.Network
 
         #region Public Set Methods
 
+        public APIOperation AsSilentAPI()
+        {
+            SetFailureHandling(FailureHandling.None);
+            SetIsShowLoading(false);
+            return this;
+        }
+
+        public APIOperation AsRetryableAPI(bool isShowLoading = true)
+        {
+            SetFailureHandling(FailureHandling.SuggestRetry);
+            SetIsShowLoading(isShowLoading);
+            return this;
+        }
+
+        public APIOperation AsCriticalAPI(bool isShowLoading = true)
+        {
+            SetFailureHandling(FailureHandling.SuggestReloadGame);
+            SetIsShowLoading(isShowLoading);
+            return this;
+        }
+
         public APIOperation SetMockedResponseData(JSONObject value)
         {
             SetMockedResponseData(value?.ToString());
@@ -336,6 +357,18 @@ namespace PhEngine.Network
         public APIOperation AppendDataFieldSchema(string schema)
         {
             ClientRequest.AppendDataFieldSchema(schema);
+            return this;
+        }
+
+        public APIOperation SetFailureHandling(FailureHandling value)
+        {
+            ClientRequest.Form.setting.failureHandling = value;
+            return this;
+        }
+        
+        public APIOperation SetIsShowLoading(bool value)
+        {
+            ClientRequest.Form.setting.isShowLoading = value;
             return this;
         }
 

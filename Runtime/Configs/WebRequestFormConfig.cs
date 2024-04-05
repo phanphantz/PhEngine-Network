@@ -2,7 +2,6 @@
 using PhEngine.Core.JSON;
 using PhEngine.Core.Operation;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace PhEngine.Network
 {
@@ -19,8 +18,8 @@ namespace PhEngine.Network
         [TextArea(0,100)]
         public string response;
         
-        public bool isUseTestRequestBody;
-        public bool isUseTestHeaders;
+        public bool isUseTestRequestBody = true;
+        public bool isUseTestHeaders = true;
         public bool isUseMockedResponse;
         public bool isFullJsonResponse;
 
