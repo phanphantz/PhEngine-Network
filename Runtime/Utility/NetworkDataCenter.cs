@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace PhEngine.Network
 {
-    public abstract class NetworkObjectCenter<T> : MonoBehaviour, IService<NetworkServices>
+    public abstract class NetworkDataCenter<T> : MonoBehaviour, IService<NetworkServices>
     {
         [SerializeField] WebRequestFormConfig getRequestConfig;
         [SerializeField] protected List<T> elementList;
