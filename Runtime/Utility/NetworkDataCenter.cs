@@ -12,10 +12,10 @@ namespace PhEngine.Network
     public abstract class NetworkDataCenter<T> : MonoBehaviour, IService<NetworkServices>
     {
         [SerializeField] WebRequestFormConfig getRequestConfig;
-        [SerializeField] protected List<T> elementList;
+        [SerializeField] protected List<T> elementList = new List<T>();
 
         public T SingleOrDefault => elementList.FirstOrDefault();
-        public IReadOnlyList<T> ElementList => elementList.AsReadOnly();
+        public IReadOnlyList<T> ElementList => elementList?.AsReadOnly();
         public event Action<IReadOnlyList<T>> OnElementUpdate;
         
         public APIOperation GetListFromServer()
