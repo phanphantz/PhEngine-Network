@@ -85,31 +85,37 @@ namespace PhEngine.Network
 
         public void	AddRequestField(string fieldName, int value)
         {
+            Content ??= new JSONObject();
             Content.AddField(fieldName, value);
         }
         
         public void	AddRequestField(string fieldName, string value)
         {
+            Content ??= new JSONObject();
             Content.AddField(fieldName, value);
         }
         
         public void	AddRequestField(string fieldName, long value)
         {
+            Content ??= new JSONObject();
             Content.AddField(fieldName, value);
         }
         
         public void	AddRequestField(string fieldName, bool value)
         {
+            Content ??= new JSONObject();
             Content.AddField(fieldName, value);
         }
         
         public void	AddRequestField(string fieldName, float value)
         {
+            Content ??= new JSONObject();
             Content.AddField(fieldName, value);
         }
         
         public void	AddRequestField(string fieldName, JSONObject value)
         {
+            Content ??= new JSONObject();
             Content.AddField(fieldName, value);
         }
     }
