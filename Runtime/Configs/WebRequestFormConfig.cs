@@ -14,7 +14,7 @@ namespace PhEngine.Network
         [Header("Testing")]
         [TextArea(0,100)]
         public string requestBody;
-        public RequestHeader[] headers;
+        public RequestHeader[] headers = new RequestHeader[]{};
         [TextArea(0,100)]
         public string response;
         
