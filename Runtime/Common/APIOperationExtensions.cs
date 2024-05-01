@@ -135,5 +135,23 @@ namespace PhEngine.Network
             };
             return operation;
         }
+        
+        public static APIOperation BindOnReceiveResponse(this APIOperation operation, Action callback, bool isOneShot = false)
+        {
+            operation.BindOnReceiveResponse(callback, isOneShot);
+            return operation;
+        }
+        
+        public static APIOperation BindOnSuccess(this APIOperation operation, Action<ServerResult> callback, bool isOneShot = false)
+        {
+            operation.BindOnSuccess(callback, isOneShot);
+            return operation;
+        }
+        
+        public static APIOperation BindOnFail(this APIOperation operation, Action<ServerResult> callback, bool isOneShot = false) 
+        {
+            operation.BindOnFail(callback, isOneShot);
+            return operation;
+        }
     }
 }

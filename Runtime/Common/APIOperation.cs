@@ -560,5 +560,20 @@ namespace PhEngine.Network
             return json.SafeBool(fieldName);
         }
 #endif
+        
+        internal void BindOnFail(Action<ServerResult> callback, bool isOneShot = false)
+        {
+            BindOnFailInternally(callback, isOneShot);
+        }
+
+        internal void BindOnSuccess(Action<ServerResult> callback, bool isOneShot = false)
+        {
+            BindOnSuccessInternally(callback, isOneShot);
+        }
+
+        internal void BindOnReceiveResponse(Action callback, bool isOneShot = false)
+        {
+            BindOnReceiveResponseInternally(callback, isOneShot);
+        }
     }
 }
