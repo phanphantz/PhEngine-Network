@@ -7,10 +7,11 @@ namespace PhEngine.Network
 {
     public static class APIOperationExtensions
     {
-        public static void Add(this Flow flow, API api)
+        public static Flow Add(this Flow flow, API api)
         {
             var apiOp = api.CreateOperation();
             flow.Add(apiOp);
+            return flow;
         }
 
         public static APIOperation Expect<T>(this APIOperation operation, Action<T> onSuccess, T mockedData = default)
@@ -133,6 +134,24 @@ namespace PhEngine.Network
                 if (operation.TryGetResultList<T>(out var resultObjList))
                     onSuccess?.Invoke(resultObjList);
             };
+            return operation;
+        }
+        
+        public static APIOperation BindOnReceiveResponse(this APIOperation operation, Action callback, bool isOneShot = false)
+        {
+            operation.BindOnReceiveResponse(callback, isOneShot);
+            return operation;
+        }
+        
+        public static APIOperation BindOnSuccess(this APIOperation operation, Action<ServerResult> callback, bool isOneShot = false)
+        {
+            operation.BindOnSuccess(callback, isOneShot);
+            return operation;
+        }
+        
+        public static APIOperation BindOnFail(this APIOperation operation, Action<ServerResult> callback, bool isOneShot = false) 
+        {
+            operation.BindOnFail(callback, isOneShot);
             return operation;
         }
     }

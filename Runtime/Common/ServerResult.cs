@@ -2,7 +2,6 @@ using System;
 using System.Net;
 using System.Linq;
 using PhEngine.Core.JSON;
-using UnityEngine;
 using UnityEngine.Networking;
 
 namespace PhEngine.Network
@@ -13,6 +12,7 @@ namespace PhEngine.Network
         public int code;
         public JSONObject fullJson;
         public JSONObject dataJson;
+        public JSONObject headerJson;
         public string message;
         public string dateTime;
         public float elapsedTimeSeconds;
@@ -20,7 +20,7 @@ namespace PhEngine.Network
         public HttpStatusCode httpStatus;
         public bool isMocked;
         public FailureHandling failureHandling;
-
+        
         public ServerResult() {}
 
         public ServerResult(ServerResultStatus status, string message, int code, FailureHandling failureHandling)
@@ -35,10 +35,10 @@ namespace PhEngine.Network
         {
             this.elapsedTimeSeconds = elapsedTimeSeconds;
             failureHandling = clientRequest.FailureHandling;
-            if (clientRequest.TestMode != TestMode.Off)
+            if (clientRequest.MockMode != MockMode.Off)
             {
                 isMocked = true;
-                MockStatus(clientRequest.TestMode);
+                MockStatus(clientRequest.MockMode);
                 if (!string.IsNullOrEmpty(clientRequest.MockedFullJson))
                 {
                     fullJson = new JSONObject(clientRequest.MockedFullJson);
@@ -59,6 +59,9 @@ namespace PhEngine.Network
 
                 fullJson = new JSONObject(unityWebRequest.downloadHandler.text);
                 status = GetServerResultStatus();
+                headerJson = new JSONObject();
+                foreach (var keyValuePair in unityWebRequest.GetResponseHeaders())
+                    headerJson.AddField(keyValuePair.Key, keyValuePair.Value);
             }
 
             if (fullJson != null)
@@ -72,8 +75,8 @@ namespace PhEngine.Network
                 dataJson = fullJson;
                 if (!string.IsNullOrEmpty(resultRule.dataFieldSchema))
                 {
-                    var finalSchema = clientRequest.DataFieldCustomSchema.GetFinalSchema(resultRule.dataFieldSchema);
-                    var tryGetDataJsonFromField = resultRule.SafeJsonFromSchema(fullJson,finalSchema);
+                    var finalSchema = clientRequest.DataFieldCustomSchema.GetFinalSchema(resultRule.dataFieldSchema, resultRule.schemaNavigator);
+                    var tryGetDataJsonFromField = resultRule.GetJsonFromSchema(fullJson,finalSchema);
                     if (tryGetDataJsonFromField != null)
                         dataJson = tryGetDataJsonFromField;
                 }
@@ -103,14 +106,14 @@ namespace PhEngine.Network
             }
         }
 
-        void MockStatus(TestMode testMode)
+        void MockStatus(MockMode mockMode)
         {
-            status = testMode switch
+            status = mockMode switch
             {
-                TestMode.MockConnectionFail => ServerResultStatus.ConnectionFail,
-                TestMode.MockServerReturnFail => ServerResultStatus.ServerReturnFail,
-                TestMode.MockServerReturnSuccess => ServerResultStatus.ServerReturnSuccess,
-                TestMode.Off => ServerResultStatus.ServerReturnSuccess,
+                MockMode.MockConnectionFail => ServerResultStatus.ConnectionFail,
+                MockMode.MockServerReturnFail => ServerResultStatus.ServerReturnFail,
+                MockMode.MockServerReturnSuccess => ServerResultStatus.ServerReturnSuccess,
+                MockMode.Off => ServerResultStatus.ServerReturnSuccess,
                 _ => throw new ArgumentOutOfRangeException()
             };
         }
@@ -130,7 +133,7 @@ namespace PhEngine.Network
     public class ServerResultRule
     {
         public StatusCodeRange[] successStatusCodeRanges;
-        public char schemaNavigatorChar = '/';
+        public string schemaNavigator = "/";
         public string messageFieldSchema = "message";
         public string dataFieldSchema = "data";
         public string statusCodeFieldSchema = "statusCode";
@@ -158,25 +161,44 @@ namespace PhEngine.Network
 
         string SafeStringFromSchema(JSONObject json, string schema)
         {
+            if (json == null)
+                return string.Empty;
+                
             var currentField = GetTargetFieldFromSchema(json, schema, out var targetField);
+            if (currentField == null)
+                return string.Empty;
+            
             return currentField.SafeString(targetField);
         }
         
         int SafeIntFromSchema(JSONObject json, string schema)
         {
+            if (json == null)
+                return 0;
+
             var currentField = GetTargetFieldFromSchema(json, schema, out var targetField);
+            if (currentField == null)
+                return 0;
+            
             return currentField.SafeInt(targetField);
         }
 
-        public JSONObject SafeJsonFromSchema(JSONObject json, string schema)
+        public JSONObject GetJsonFromSchema(JSONObject json, string schema)
         {
+            if (json == null)
+                return null;
+            
             var currentField = GetTargetFieldFromSchema(json, schema, out var targetField);
-            return currentField.GetField(targetField);
+            return currentField?.GetField(targetField);
         }
 
         public JSONObject GetTargetFieldFromSchema(JSONObject json, string schema, out string targetField)
         {
-            var schemas = schema.Split(schemaNavigatorChar);
+            targetField = string.Empty;
+            if (string.IsNullOrEmpty(schema) || json == null)
+                return null;
+                
+            var schemas = schema.Split(schemaNavigator);
             targetField = schemas.LastOrDefault();
             JSONObject currentField = json;
             for (var i = 0; i < schemas.Length - 1; i++)

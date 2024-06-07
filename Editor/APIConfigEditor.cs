@@ -3,14 +3,14 @@ using UnityEngine;
 
 namespace PhEngine.Network.Editor
 {
-    [CustomEditor(typeof(WebRequestFormConfig)), CanEditMultipleObjects]
-    public class WebRequestFormConfigEditor : UnityEditor.Editor
+    [CustomEditor(typeof(APIConfig)), CanEditMultipleObjects]
+    public class APIConfigEditor : UnityEditor.Editor
     {
-        WebRequestFormConfig config;
+        APIConfig config;
         
         void OnEnable()
         {
-            config = target as WebRequestFormConfig;
+            config = target as APIConfig;
         }
 
         public override void OnInspectorGUI()
@@ -18,8 +18,8 @@ namespace PhEngine.Network.Editor
             base.OnInspectorGUI();
             EditorGUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
-            if (GUILayout.Button("Test", GUILayout.Width(50), GUILayout.Height(25)))
-                config.Test();
+            if (GUILayout.Button("Try", GUILayout.Width(50), GUILayout.Height(25)))
+                config.Try();
             EditorGUILayout.EndHorizontal();
         }
     }

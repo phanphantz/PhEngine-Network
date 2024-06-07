@@ -19,7 +19,7 @@ namespace PhEngine.Network.Editor
             base.OnInspectorGUI();
             if (GUILayout.Button("Refresh"))
             {
-                var webRequestConfigs = FindAllScriptableObjects<WebRequestFormConfig>();
+                var webRequestConfigs = FindAllScriptableObjects<APIConfig>();
                 var sortedConfigs = webRequestConfigs.OrderBy(c => c.name).ToArray();
                 Undo.RegisterCompleteObjectUndo(config, "Refresh API Bible");
                 config.SetConfigs(sortedConfigs);

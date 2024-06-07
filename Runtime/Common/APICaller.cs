@@ -48,6 +48,11 @@ namespace PhEngine.Network
             config.SetBackendEnvironment(environmentName);
         }
 
+        public void SetConfig(APICallerConfig value)
+        {
+            config = value;
+        }
+
         public void SetHeaderModification(string key, string value)
         {
             var existingHeader = GetHeaderModification(key);
@@ -82,8 +87,8 @@ namespace PhEngine.Network
         
         internal UnityWebRequest CreateWebRequest(APIOperation operation)
         {
-            if (config.isForceUseTestMode)
-                operation.SetDebugMode(config.testMode);
+            if (config.isForceUseMockMode)
+                operation.SetMockMode(config.mockMode);
 
             operation.SetLogOption(config.logOption);
             operation.SetServerResultRule(config.serverResultRule);

@@ -5,7 +5,8 @@
         "PhEngine.Core",
         "PhEngine.Core.Operation",
         "PhEngine.Network",
-        "PhEngine.Core.JSON"
+        "PhEngine.Core.JSON",
+        "PhEngine.Core.Editor"
     ],
     "includePlatforms": [
         "Editor"

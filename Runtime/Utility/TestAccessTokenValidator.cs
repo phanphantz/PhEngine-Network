@@ -24,8 +24,8 @@ namespace PhEngine.Network
         {
             return Operation.Create()
                 .SetDuration(TimeSpan.FromSeconds(mockResolveTime), true)
-                .SetOnStart(()=> Debug.Log("Faking Refresh AccessToken API..."))
-                .SetOnFinish(()=>
+                .BindOnStart(()=> Debug.Log("Faking Refresh AccessToken API..."))
+                .BindOnFinish(()=>
                 {
                     Debug.Log("Received new Fake AccessToken!");
                     isExpiredBeforeCall = false;

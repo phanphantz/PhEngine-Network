@@ -22,7 +22,7 @@ namespace PhEngine.Network
         static string GetFullURL(ClientRequest clientRequest, BackendSetting backend)
         {
             var fullURL = clientRequest.Destination;
-            if (clientRequest.Type == WebRequestPathType.Endpoint)
+            if (clientRequest.Type == APIPathType.Endpoint)
             {
                 if (backend == null)
                     throw new ArgumentNullException(nameof(backend));

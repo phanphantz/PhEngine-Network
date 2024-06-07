@@ -4,35 +4,35 @@ using PhEngine.Core.JSON;
 namespace PhEngine.Network
 {
     [Serializable]
-    public class WebRequestForm
+    public class APIForm
     {
         public string path;
         public HTTPVerb verb;
         public ParameterType parameterType;
-        public WebRequestPathType type;
-        public WebRequestSetting setting;
-        public CustomSchema customSchema;
+        public APIPathType type;
+        public APISetting setting;
+        public CustomSchema customResponseSchema;
 
-        public WebRequestForm(string path, HTTPVerb verb, ParameterType parameterType = ParameterType.None,
-            WebRequestPathType type = WebRequestPathType.FullURL, WebRequestSetting setting = null,
+        public APIForm(string path, HTTPVerb verb, ParameterType parameterType = ParameterType.None,
+            APIPathType type = APIPathType.FullURL, APISetting setting = null,
             CustomSchema customCustomSchema = null)
         {
             this.path = path;
             this.verb = verb;
             this.parameterType = parameterType;
             this.type = type;
-            this.setting = setting != null ? new WebRequestSetting(setting) : new WebRequestSetting();
-            this.customSchema = customCustomSchema != null ? new CustomSchema(customCustomSchema) : new CustomSchema();
+            this.setting = setting != null ? new APISetting(setting) : new APISetting();
+            this.customResponseSchema = customCustomSchema != null ? new CustomSchema(customCustomSchema) : new CustomSchema();
         }
 
-        public WebRequestForm(WebRequestForm form)
+        public APIForm(APIForm form)
         {
             path = form.path;
             verb = form.verb;
             parameterType = form.parameterType;
             type = form.type;
-            setting = new WebRequestSetting(form.setting);
-            customSchema = new CustomSchema(form.customSchema);
+            setting = new APISetting(form.setting);
+            customResponseSchema = new CustomSchema(form.customResponseSchema);
         }
 
         public APIOperation CreateCall() => new APIOperation(this);
@@ -50,32 +50,32 @@ namespace PhEngine.Network
         None, Query, Body, Path
     }
 
-    public enum WebRequestPathType
+    public enum APIPathType
     {
         Endpoint, FullURL
     }
 
     [Serializable]
-    public class WebRequestSetting
+    public class APISetting
     {
         public bool isShowLoading = true;
         public bool isShowErrorOnConnectionFail = true;
         public bool isShowErrorOnServerFail = true;
         public bool isShowErrorOnClientFail = true;
-        public TestMode testMode;
+        public MockMode mockMode;
         public FailureHandling failureHandling;
         
-        public WebRequestSetting()
+        public APISetting()
         {
         }
         
-        public WebRequestSetting(WebRequestSetting setting)
+        public APISetting(APISetting setting)
         {
             isShowLoading = setting.isShowLoading;
             isShowErrorOnConnectionFail = setting.isShowErrorOnConnectionFail;
             isShowErrorOnServerFail = setting.isShowErrorOnServerFail;
             isShowErrorOnClientFail = setting.isShowErrorOnClientFail;
-            testMode = setting.testMode;
+            mockMode = setting.mockMode;
             failureHandling = setting.failureHandling;
         }
     }

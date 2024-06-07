@@ -88,7 +88,7 @@ namespace PhEngine.Network
         StringBuilder GetEndpointLogTitle(ClientRequest request, string logType, int? code = null)
         {
             var stringBuilder = new StringBuilder();
-            if (request.TestMode != TestMode.Off)
+            if (request.MockMode != MockMode.Off)
                 stringBuilder.Append(GetMockKeyword(LogOption));
 
             if (IsUsePrettyFormat)

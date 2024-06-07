@@ -11,9 +11,9 @@ namespace PhEngine.Network
         public JSONObject Content { get; private set; }
         public string MockedResponseData { get; private set; }
         public string MockedFullJson { get; private set; }
-        public WebRequestForm Form { get; }
+        public APIForm Form { get; }
         public List<RequestHeader> HeaderList { get; private set; } = new List<RequestHeader>();
-        public CustomSchema DataFieldCustomSchema => Form.customSchema;
+        public CustomSchema DataFieldCustomSchema => Form.customResponseSchema;
         
         public string Destination => Form.path;
         public HTTPVerb Verb => Form.verb;
@@ -23,10 +23,10 @@ namespace PhEngine.Network
         public bool IsShowServerFailError => Form.setting.isShowErrorOnServerFail;
         public bool IsShowErrorOnClientFail => Form.setting.isShowErrorOnClientFail;
         public FailureHandling FailureHandling => Form.setting.failureHandling;
-        public TestMode TestMode => Form.setting.testMode;
-        public WebRequestPathType Type => Form.type;
+        public MockMode MockMode => Form.setting.mockMode;
+        public APIPathType Type => Form.type;
 
-        internal ClientRequest(WebRequestForm form, JSONObject json = null)
+        internal ClientRequest(APIForm form, JSONObject json = null)
         {
             Form = form;
             if (form.parameterType != ParameterType.None)
@@ -45,9 +45,9 @@ namespace PhEngine.Network
             MockedResponseData = null;
         }
 
-        internal void SetDebugMode(TestMode mode)
+        internal void SetMockMode(MockMode mode)
         {
-            Form.setting.testMode = mode;
+            Form.setting.mockMode = mode;
         }
 
         internal void SetContent(JSONObject json)
@@ -75,46 +75,52 @@ namespace PhEngine.Network
 
         internal void OverrideDataFieldSchema(string schema)
         {
-            Form.customSchema = new CustomSchema(schema, JsonSchemaModification.Override);
+            Form.customResponseSchema = new CustomSchema(schema, JsonSchemaModification.Override);
         }
         
         internal void AppendDataFieldSchema(string schema)
         {
-            Form.customSchema = new CustomSchema(schema, JsonSchemaModification.Append);
+            Form.customResponseSchema = new CustomSchema(schema, JsonSchemaModification.Append);
         }
 
         public void	AddRequestField(string fieldName, int value)
         {
+            Content ??= new JSONObject();
             Content.AddField(fieldName, value);
         }
         
         public void	AddRequestField(string fieldName, string value)
         {
+            Content ??= new JSONObject();
             Content.AddField(fieldName, value);
         }
         
         public void	AddRequestField(string fieldName, long value)
         {
+            Content ??= new JSONObject();
             Content.AddField(fieldName, value);
         }
         
         public void	AddRequestField(string fieldName, bool value)
         {
+            Content ??= new JSONObject();
             Content.AddField(fieldName, value);
         }
         
         public void	AddRequestField(string fieldName, float value)
         {
+            Content ??= new JSONObject();
             Content.AddField(fieldName, value);
         }
         
         public void	AddRequestField(string fieldName, JSONObject value)
         {
+            Content ??= new JSONObject();
             Content.AddField(fieldName, value);
         }
     }
     
-    public enum TestMode
+    public enum MockMode
     {
         Off, MockServerReturnSuccess, MockServerReturnFail, MockConnectionFail 
     }
@@ -141,14 +147,14 @@ namespace PhEngine.Network
             mode = customSchema.mode;
         }
 
-        public string GetFinalSchema(string input)
+        public string GetFinalSchema(string input, string separator)
         {
             switch (mode)
             {
                 case JsonSchemaModification.None:
                     return input;
                 case JsonSchemaModification.Append:
-                    return input + "/" + value;
+                    return input + separator + value;
                 case JsonSchemaModification.Override:
                     return value;
                 default:

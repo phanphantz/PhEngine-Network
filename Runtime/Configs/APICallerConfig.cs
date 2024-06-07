@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace PhEngine.Network
 {
@@ -22,8 +23,8 @@ namespace PhEngine.Network
             return backendSettingList[selectedBackendIndex];
         }
 
-        [Header("Debugging")] public bool isForceUseTestMode;
-        public TestMode testMode;
+        [Header("Debugging")] public bool isForceUseMockMode;
+        public MockMode mockMode;
         public APILogOption logOption = APILogOption.Pretty;
 
         [Header("Format Settings")] public ClientRequestRule clientRequestRule;

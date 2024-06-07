@@ -9,13 +9,13 @@ namespace PhEngine.Network
     [Serializable]
     public abstract class API
     {
-        public WebRequestForm Form => new WebRequestForm(form);
-        [SerializeField] protected WebRequestForm form;
+        public APIForm Form => new APIForm(form);
+        [SerializeField] protected APIForm form;
         
-        public APIOperation CreateOperation(TestMode testMode)
+        public APIOperation CreateOperation(MockMode mockMode)
         {
             var api = CreateOperation();
-            api.SetDebugMode(testMode);
+            api.SetMockMode(mockMode);
             return api;
         }
 
@@ -32,14 +32,14 @@ namespace PhEngine.Network
         protected virtual JSONObject CreateMockJson() => null;
         public virtual JSONObject CreateBody() => null;
         
-        public static APIOperation Call(WebRequestForm form, JSONObject json = null)
+        public static APIOperation Call(APIForm form, JSONObject json = null)
         {
             var call = new APIOperation(form, json);
             Call(call);
             return call;
         }
         
-        public static APIOperation Call(WebRequestForm form, object requestData)
+        public static APIOperation Call(APIForm form, object requestData)
         {
             var call = new APIOperation(form, requestData);
             Call(call);

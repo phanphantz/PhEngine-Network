@@ -16,7 +16,7 @@ namespace PhEngine.Network
 {
     public class APIOperation : NetworkOperation<ServerResult>
     {
-        internal ClientRequest ClientRequest { get; private set; }
+        public ClientRequest ClientRequest { get; private set; }
         APILogOption logOption;
         APILogger logger;
         ServerResultRule serverResultRule;
@@ -25,29 +25,29 @@ namespace PhEngine.Network
 
         #region Constructors
         
-        public APIOperation(WebRequestFormConfig config, object data)
+        public APIOperation(APIConfig config, object data)
         {
             var jsonString = JsonConvert.SerializeObject(data);
-            Initialize(config.Form, new JSONObject(jsonString));
+            Initialize(config.ClonedForm, new JSONObject(jsonString));
         }
 
-        public APIOperation(WebRequestForm form, object data)
+        public APIOperation(APIForm form, object data)
         {
             var jsonString = JsonConvert.SerializeObject(data);
             Initialize(form, new JSONObject(jsonString));
         }
         
-        public APIOperation(WebRequestFormConfig config, JSONObject json = null)
+        public APIOperation(APIConfig config, JSONObject json = null)
         {
-            Initialize(config.Form, json);
+            Initialize(config.ClonedForm, json);
         }
 
-        public APIOperation(WebRequestForm form, JSONObject json = null)
+        public APIOperation(APIForm form, JSONObject json = null)
         {
             Initialize(form, json);
         }
 
-        void Initialize(WebRequestForm form, JSONObject json)
+        void Initialize(APIForm form, JSONObject json)
         {
             ClientRequest = new ClientRequest(form, json);
             OnStart += HandleOnSend;
@@ -139,7 +139,7 @@ namespace PhEngine.Network
             
             string GetTimeFromServerResult()
             {
-                return ClientRequest.TestMode == TestMode.Off? Result.dateTime : DateTime.UtcNow.ToString(CultureInfo.InvariantCulture);
+                return ClientRequest.MockMode == MockMode.Off? Result.dateTime : DateTime.UtcNow.ToString(CultureInfo.InvariantCulture);
             }
         }
         
@@ -194,10 +194,10 @@ namespace PhEngine.Network
             NetworkEvent.InvokeOnAnyClientFail(error);
         }
         
-        protected override bool IsShouldFinish => base.IsShouldFinish || ClientRequest.TestMode != TestMode.Off;
+        protected override bool IsShouldFinish => base.IsShouldFinish || ClientRequest.MockMode != MockMode.Off;
         protected override float GetWebRequestProgress()
         {
-            return ClientRequest.TestMode != TestMode.Off ? 1f : base.GetWebRequestProgress();
+            return ClientRequest.MockMode != MockMode.Off ? 1f : base.GetWebRequestProgress();
         }
 
         protected override bool IsNetworkOperationSuccess()
@@ -260,11 +260,13 @@ namespace PhEngine.Network
             return this;
         }
 
-        public APIOperation SetDebugMode(TestMode mode)
+        public APIOperation SetMockMode(MockMode mode)
         {
-            ClientRequest.SetDebugMode(mode);
+            ClientRequest.SetMockMode(mode);
             return this;
         }
+
+        public bool IsMocked => ClientRequest.MockMode != MockMode.Off;
 
         public APIOperation SetRequestBody(JSONObject json)
         {
@@ -560,5 +562,20 @@ namespace PhEngine.Network
             return json.SafeBool(fieldName);
         }
 #endif
+        
+        internal void BindOnFail(Action<ServerResult> callback, bool isOneShot = false)
+        {
+            BindOnFailInternally(callback, isOneShot);
+        }
+
+        internal void BindOnSuccess(Action<ServerResult> callback, bool isOneShot = false)
+        {
+            BindOnSuccessInternally(callback, isOneShot);
+        }
+
+        internal void BindOnReceiveResponse(Action callback, bool isOneShot = false)
+        {
+            BindOnReceiveResponseInternally(callback, isOneShot);
+        }
     }
 }
