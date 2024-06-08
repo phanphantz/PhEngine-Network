@@ -92,16 +92,10 @@ namespace PhEngine.Network
         static bool ValidateTimeString(string timeString)
         {
             if (string.IsNullOrEmpty(timeString))
-            {
-                Debug.LogWarning("Cannot Set Update Latest Server Time. Received string is null or empty.");
                 return false;
-            }
             
             if (!DateTime.TryParse(timeString, out _))
-            {
-                Debug.LogWarning("Cannot Set Update Latest Server Time. Received string cannot be parsed to DateTime.");
                 return false;
-            }
 
             return true;
         }
