@@ -10,6 +10,7 @@ namespace PhEngine.Network
 {
     public abstract class NetworkDataCenter<T> : MonoBehaviour, IService<NetworkServices>
     {
+        public APIConfig GetRequestConfig => getRequestConfig;
         [SerializeField] APIConfig getRequestConfig;
         [SerializeField] protected List<T> elementList = new List<T>();
 
